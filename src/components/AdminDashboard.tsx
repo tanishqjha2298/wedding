@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import {
   Users, ShieldAlert, LogIn, LogOut, Search, Filter,
-  Calendar, Music, TrendingUp, Settings,
+  Calendar, Music, TrendingUp, Settings, Trash2, Loader2,
 } from 'lucide-react';
 import { onAuthStateChanged, User as FirebaseUser, signOut } from 'firebase/auth';
-import { collection, onSnapshot, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 import {
   auth, db, ADMIN_EMAIL, isFirebaseConfigured,
   signInWithGoogle, logFirestoreError, OperationType,
@@ -38,6 +38,8 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAttendance, setFilterAttendance] = useState('all');
   const [authError, setAuthError] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const isAdmin = Boolean(
     user?.email && ADMIN_EMAIL && user.email.toLowerCase() === ADMIN_EMAIL,
@@ -121,6 +123,22 @@ export default function AdminDashboard() {
       await signOut(auth);
     } catch (e) {
       console.error('Logout failed:', e);
+    }
+  };
+
+  // Permanently delete an RSVP from Firestore (host only; allowed by rules).
+  // The real-time listener removes it from the table automatically.
+  const handleDelete = async (id: string) => {
+    if (!db) return;
+    setDeletingId(id);
+    try {
+      await deleteDoc(doc(db, 'rsvps', id));
+    } catch (e) {
+      logFirestoreError(e, OperationType.DELETE, `rsvps/${id}`);
+      alert('Could not delete this RSVP. Please try again.');
+    } finally {
+      setDeletingId(null);
+      setConfirmDeleteId(null);
     }
   };
 
@@ -385,6 +403,7 @@ export default function AdminDashboard() {
                       <th className="py-4 px-5">Ceremonies</th>
                       <th className="py-4 px-5">Song Request</th>
                       <th className="py-4 px-5 text-right">Submitted</th>
+                      <th className="py-4 px-5 text-right">Remove</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -449,6 +468,35 @@ export default function AdminDashboard() {
                         </td>
                         <td className="py-3.5 px-5 text-right text-[10px] font-mono text-stone-muted">
                           {rsvp.createdAt ? rsvp.createdAt.toDate().toLocaleDateString() : '—'}
+                        </td>
+                        <td className="py-3.5 px-5 text-right">
+                          {confirmDeleteId === rsvp.id ? (
+                            <span className="inline-flex items-center gap-2 justify-end">
+                              <button
+                                onClick={() => handleDelete(rsvp.id)}
+                                disabled={deletingId === rsvp.id}
+                                className="cursor-pointer inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white bg-red-600 hover:bg-red-700 px-2.5 py-1 rounded-full transition-all disabled:opacity-70"
+                              >
+                                {deletingId === rsvp.id ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Delete'}
+                              </button>
+                              <button
+                                onClick={() => setConfirmDeleteId(null)}
+                                disabled={deletingId === rsvp.id}
+                                className="cursor-pointer text-[10px] font-bold uppercase tracking-wider text-stone-muted hover:text-stone-dark px-1.5 py-1 transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => setConfirmDeleteId(rsvp.id)}
+                              aria-label={`Remove RSVP for ${rsvp.fullName}`}
+                              title="Remove this RSVP"
+                              className="cursor-pointer p-1.5 rounded-lg text-stone-muted hover:text-red-600 hover:bg-red-50 transition-all"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

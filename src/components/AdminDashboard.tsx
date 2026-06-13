@@ -31,6 +31,7 @@ export default function AdminDashboard() {
   const [authChecking, setAuthChecking] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAttendance, setFilterAttendance] = useState('all');
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const isAdmin = Boolean(
     user?.email && ADMIN_EMAIL && user.email.toLowerCase() === ADMIN_EMAIL,
@@ -84,9 +85,24 @@ export default function AdminDashboard() {
   }, [isAdmin]);
 
   const handleLogin = async () => {
+    setAuthError(null);
     try {
       await signInWithGoogle();
     } catch (e) {
+      const code = (e as { code?: string })?.code ?? '';
+      const messages: Record<string, string> = {
+        'auth/popup-blocked':
+          'Your browser blocked the sign-in popup. Allow pop-ups for this site, then try again.',
+        'auth/unauthorized-domain':
+          'This domain is not authorized in Firebase. Add it under Authentication → Settings → Authorized domains.',
+        'auth/operation-not-allowed':
+          'Google sign-in is not enabled in Firebase yet (Authentication → Sign-in method → Google → Enable).',
+        'auth/configuration-not-found':
+          'Google sign-in is not configured in Firebase yet (Authentication → Sign-in method → Google → Enable).',
+        'auth/popup-closed-by-user': 'Sign-in was cancelled.',
+        'auth/cancelled-popup-request': 'Sign-in was cancelled.',
+      };
+      setAuthError(messages[code] || `Sign-in failed${code ? ` (${code})` : ''}. Please try again.`);
       console.error('Login failed:', e);
     }
   };
@@ -206,6 +222,11 @@ export default function AdminDashboard() {
               <LogIn className="w-4 h-4" />
               Sign in as host
             </button>
+          )}
+          {authError && (
+            <p className="mt-4 text-xs font-sans text-clay-rose font-semibold bg-red-50/60 border border-clay-rose/20 rounded-xl px-4 py-3 max-w-sm mx-auto leading-relaxed">
+              {authError}
+            </p>
           )}
         </div>
       ) : (

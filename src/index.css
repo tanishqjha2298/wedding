@@ -5,16 +5,23 @@
   --font-serif: "Cormorant Garamond", "Playfair Display", Georgia, serif;
   --font-display: "Cinzel", "Playfair Display", serif;
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  
-  /* Traditional Rajasthani Palette variables */
-  --color-clay-rose: #be533c;      /* Clay Sandstone pink/peach-rose from Palace image */
-  --color-clay-dark: #6e2c1e;      /* Deep rich terracotta shade */
-  --color-palace-terracotta: #d37b67; /* Classic Rajasthani brick terracotta */
-  --color-sand-gold: #c99342;      /* Sand gold from Lake Jharokha archways */
-  --color-sand-gold-light: #e6cb95; /* Warm golden light sandstone */
-  --color-royal-blue: #134074;     /* Deep Mewari royal sky blue */
-  --color-lake-blue: #3a7ca5;      /* Placid lake blue with sky reflection */
-  --color-mandarin: #e76f51;       /* Traditional marigold orange accent */
+
+  /* Traditional Rajasthani palette (Bikaner red-sandstone tones) */
+  --color-clay-rose: #be533c;        /* Clay sandstone rose */
+  --color-clay-dark: #6e2c1e;        /* Deep terracotta */
+  --color-palace-terracotta: #d37b67;
+  --color-sand-gold: #c99342;        /* Sand gold */
+  --color-sand-gold-light: #e6cb95;  /* Warm light sandstone */
+  --color-royal-blue: #134074;
+  --color-lake-blue: #3a7ca5;
+  --color-mandarin: #e76f51;         /* Marigold accent */
+
+  /* Neutrals — defined as theme colors so opacity modifiers (e.g. /40) work */
+  --color-stone-dark: #3f3b35;       /* Noble charcoal */
+  --color-stone-muted: #8c8579;
+  --color-stone-warm: #e6e2da;       /* Hairline borders */
+  --color-cream-stone: #fbfaf5;      /* Warm cream panels */
+  --color-cream: #faf8f4;            /* Page cream */
 }
 
 html {
@@ -23,35 +30,10 @@ html {
 
 body {
   background-color: #fcfbfa; /* Luxury warm cream */
-  color: #2b2823;           /* Noble charcoal */
+  color: #2b2823;            /* Noble charcoal */
 }
 
-/* Custom visual styles */
-.text-clay-rose {
-  color: var(--color-clay-rose);
-}
-
-.text-sand-gold {
-  color: var(--color-sand-gold);
-}
-
-.bg-cream-stone {
-  background-color: #fbfaf5;
-}
-
-.border-stone-warm {
-  border-color: #e6e2da;
-}
-
-.text-stone-dark {
-  color: #3f3b35;
-}
-
-.text-stone-muted {
-  color: #8c8579;
-}
-
-/* Stunning Pure CSS/SVG Jaali Lattice Pattern - Perfect Traditional Background overlay */
+/* Pure CSS jaali (lattice) background overlays */
 .bg-jaali-rose {
   background-image: radial-gradient(circle at 50% 50%, transparent 40%, rgba(190, 83, 60, 0.035) 41%, transparent 44%),
                     radial-gradient(circle at 0px 50%, transparent 40%, rgba(190, 83, 60, 0.035) 41%, transparent 44%),
@@ -70,28 +52,21 @@ body {
   background-size: 32px 32px;
 }
 
-/* Beautiful Scalloped Archway Mask and Overlay Helpers */
+/* Scalloped Mihrab archway mask (see the inline <clipPath> in App) */
 .clip-mihrab-arch {
   clip-path: url(#clip-mihrab);
 }
 
-/* Border animation line draw */
-@keyframes borderGrow {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
+/* Subtle drawn gold underline used under timeline cards */
 .animate-gold-border {
   position: relative;
 }
-
 .animate-gold-border::after {
   content: '';
   position: absolute;
   bottom: 0;
   left: 0;
   height: 1.5px;
-  background: linear-gradient(90deg, transparent, var(--color-sand-gold), transparent);
   width: 100%;
+  background: linear-gradient(90deg, transparent, var(--color-sand-gold), transparent);
 }
-

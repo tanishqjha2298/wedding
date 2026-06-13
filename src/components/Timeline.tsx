@@ -1,11 +1,5 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { motion } from 'motion/react';
-import { Calendar, Clock, Sparkles, Music, Heart, Flame, MapPin } from 'lucide-react';
-import { WeddingEvent } from '../types';
+import { Calendar, Clock, Sparkles, Music, Heart, Flame } from 'lucide-react';
 import { weddingEvents } from '../data/events';
 
 interface TimelineProps {

@@ -1,22 +1,16 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Check, Music, User, ThumbsUp, Send, Sparkles, Loader2 } from 'lucide-react';
+import { Check, Music, User, ThumbsUp, Send, Loader2 } from 'lucide-react';
 import { RsvpFormState, AttendanceOption } from '../types';
 import { weddingEvents } from '../data/events';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../firebase';
+import { db, isFirebaseConfigured, logFirestoreError, OperationType } from '../firebase';
 
 interface RsvpFormProps {
   isFriendsAuthorized: boolean;
-  onSubmitMock: (data: RsvpFormState) => void;
 }
 
-export default function RsvpForm({ isFriendsAuthorized, onSubmitMock }: RsvpFormProps) {
+export default function RsvpForm({ isFriendsAuthorized }: RsvpFormProps) {
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<RsvpFormState>({
     fullName: '',
@@ -105,6 +99,14 @@ export default function RsvpForm({ isFriendsAuthorized, onSubmitMock }: RsvpForm
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isFirebaseConfigured || !db) {
+      setSubmitError(
+        'Our RSVP system is being set up — please try again shortly, or reach out to us directly.',
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError(null);
 
@@ -119,14 +121,12 @@ export default function RsvpForm({ isFriendsAuthorized, onSubmitMock }: RsvpForm
       };
 
       await setDoc(rsvpRef, payload);
-
-      // Save to local parent states so they sync
-      onSubmitMock(formData);
       setIsSubmitted(true);
     } catch (error) {
-      console.error("Firestore RSVP submission failed:", error);
-      setSubmitError(error instanceof Error ? error.message : "An unexpected server-side error occurred.");
-      handleFirestoreError(error, OperationType.CREATE, 'rsvps');
+      logFirestoreError(error, OperationType.CREATE, 'rsvps');
+      setSubmitError(
+        'Something went wrong sending your RSVP. Please try again in a moment.',
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -345,7 +345,7 @@ export default function RsvpForm({ isFriendsAuthorized, onSubmitMock }: RsvpForm
                 {/* Back / Next buttons */}
                 {submitError && (
                   <p className="text-xs font-sans text-clay-rose font-semibold bg-red-50/50 p-3 rounded-xl border border-clay-rose/20 text-center mt-4">
-                    Error sending RSVP: {submitError}
+                    {submitError}
                   </p>
                 )}
 
@@ -449,7 +449,8 @@ export default function RsvpForm({ isFriendsAuthorized, onSubmitMock }: RsvpForm
                 </div>
 
                 <p className="text-xs font-sans text-stone-muted font-light italic max-w-xs leading-relaxed">
-                  Your response has been saved securely to our Firebase Wedding Database. The royal hosts have been informed of your preference. We cannot wait to celebrate with you!
+                  Your response has been saved and the hosts have been notified.
+                  We cannot wait to celebrate with you in Bikaner!
                 </p>
 
                 <button

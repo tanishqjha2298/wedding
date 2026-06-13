@@ -16,9 +16,11 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isCrewAdmin() {
+    // NOTE: keep this email in sync with VITE_ADMIN_EMAIL in your hosting env.
+    // This is the Google account allowed to read/manage the RSVP registry.
+    function isHostAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'cmuskaan@google.com' &&
+        request.auth.token.email == 'jhatanishq2298@gmail.com' &&
         request.auth.token.email_verified == true
       );
     }
@@ -40,15 +42,15 @@ service cloud.firestore {
 
     // 4. Secure collection matches
     match /rsvps/{rsvpId} {
-      // Crew admins can list and read responses
-      allow read, list: if isCrewAdmin();
+      // Only the host admin can read/list responses (guest PII is private)
+      allow read, list: if isHostAdmin();
 
-      // Open public creation of new guest RSVPs with strict schema validation
+      // Public can create new guest RSVPs, but only in the exact valid shape
       allow create: if isValidId(rsvpId) && isValidRsvp(request.resource.data);
 
-      // RSVPs are immutable once sent to prevent voter spoofing / override
-      allow update: if isCrewAdmin() && isValidRsvp(request.resource.data); // only admins can correct if needed
-      allow delete: if isCrewAdmin();
+      // RSVPs are immutable to the public; only the host can correct or remove
+      allow update: if isHostAdmin() && isValidRsvp(request.resource.data);
+      allow delete: if isHostAdmin();
     }
   }
 }

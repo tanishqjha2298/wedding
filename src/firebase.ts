@@ -1,33 +1,69 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Firebase bootstrap.
+ *
+ * All configuration comes from environment variables (Vite `import.meta.env`),
+ * so the app is not tied to any single Firebase project. Copy `.env.example`
+ * to `.env.local` and fill in your own project's values, or set them in your
+ * Vercel project settings. See README.md for click-by-click setup.
+ *
+ * Note: Firebase web config values (apiKey, etc.) are NOT secrets — they are
+ * meant to ship in the client. Security is enforced by Firestore rules
+ * (see firestore.rules) and Authentication, not by hiding these keys.
  */
 
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseConfig from '../firebase-applet-config.json';
+import { initializeApp, type FirebaseApp } from 'firebase/app';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  type Auth,
+} from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 
-// Initialize Firebase services
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId); /* CRITICAL: The app will break without this line */
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
 
-// Standard validation check to verify Firestore connectivity on bootstrap
-async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-    console.log('Firebase Firestore connection tested successfully.');
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn("Please check your Firebase configuration or network status. The client appears to be offline.");
-    }
-  }
+// Optional: a non-default named Firestore database. Leave unset to use "(default)".
+const firestoreDatabaseId = import.meta.env.VITE_FIREBASE_DB_ID;
+
+// The Gmail address allowed to view the host RSVP dashboard.
+export const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || '').toLowerCase();
+
+/** True only when the minimum Firebase config is present. */
+export const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId,
+);
+
+let app: FirebaseApp | null = null;
+let dbInstance: Firestore | null = null;
+let authInstance: Auth | null = null;
+let googleProviderInstance: GoogleAuthProvider | null = null;
+
+if (isFirebaseConfigured) {
+  app = initializeApp(firebaseConfig);
+  dbInstance = firestoreDatabaseId
+    ? getFirestore(app, firestoreDatabaseId)
+    : getFirestore(app);
+  authInstance = getAuth(app);
+  googleProviderInstance = new GoogleAuthProvider();
+} else {
+  console.warn(
+    '[wedding] Firebase is not configured yet. RSVP saving and the host ' +
+      'dashboard are disabled until you add your Firebase env vars. See README.md.',
+  );
 }
-testConnection();
 
-// Structured Firestore error management as required by instructions
+export const db = dbInstance;
+export const auth = authInstance;
+export const googleProvider = googleProviderInstance;
+
+// Structured Firestore error reporting (kept for diagnostics).
 export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
@@ -45,45 +81,32 @@ export interface FirestoreErrorInfo {
     userId?: string | null;
     email?: string | null;
     emailVerified?: boolean | null;
-    isAnonymous?: boolean | null;
-    tenantId?: string | null;
-    providerInfo?: {
-      providerId?: string | null;
-      email?: string | null;
-    }[];
   };
 }
 
-export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null): never {
+export function logFirestoreError(
+  error: unknown,
+  operationType: OperationType,
+  path: string | null,
+): void {
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData?.map(provider => ({
-        providerId: provider.providerId,
-        email: provider.email,
-      })) || []
+      userId: auth?.currentUser?.uid,
+      email: auth?.currentUser?.email,
+      emailVerified: auth?.currentUser?.emailVerified,
     },
     operationType,
-    path
+    path,
   };
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+  console.error('Firestore Error:', JSON.stringify(errInfo));
 }
 
-/**
- * Signs in the current user using Google Authentication popup
- */
+/** Signs in the current user via the Google popup. */
 export async function signInWithGoogle() {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    return result.user;
-  } catch (error) {
-    console.error('Google Sign-In failed:', error);
-    throw error;
+  if (!auth || !googleProvider) {
+    throw new Error('Firebase Authentication is not configured.');
   }
+  const result = await signInWithPopup(auth, googleProvider);
+  return result.user;
 }

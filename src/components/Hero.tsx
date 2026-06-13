@@ -82,7 +82,7 @@ export default function Hero({ onScrollToRsvp }: HeroProps) {
       <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-12 gap-8 md:gap-12 items-center my-auto py-6 z-10">
 
         {/* Left: editorial typography */}
-        <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 md:space-y-8 px-2 sm:px-4">
+        <div className="lg:col-span-6 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 md:space-y-8 px-2 sm:px-4">
 
           <motion.div
             initial={{ opacity: 0 }}
@@ -183,14 +183,14 @@ export default function Hero({ onScrollToRsvp }: HeroProps) {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:col-span-5 flex justify-center px-4 relative"
+          className="lg:col-span-6 flex justify-center px-4 relative"
         >
-          <div className="relative w-full max-w-[460px] p-2.5 sm:p-3 rounded-3xl bg-gradient-to-b from-sand-gold-light via-sand-gold to-clay-dark shadow-xl">
-            <div className="relative overflow-hidden rounded-2xl bg-cream-stone">
+          <div className="relative w-full max-w-[600px] p-2.5 sm:p-3 rounded-3xl bg-gradient-to-b from-sand-gold-light via-sand-gold to-clay-dark shadow-xl">
+            <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-cream-stone">
               <img
                 src={heroImg}
                 alt="Gaj Kesri — the red-sandstone heritage palace venue in Bikaner"
-                className="w-full h-auto object-cover align-middle"
+                className="w-full h-full object-cover object-[50%_46%] scale-[1.12]"
               />
               <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-clay-dark/25 to-transparent pointer-events-none" />
             </div>

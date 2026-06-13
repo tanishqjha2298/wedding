@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown, Calendar, MapPin } from 'lucide-react';
 import { site } from '../config';
-import heroImg from '../assets/images/facade1.jpg';
+import heroImg from '../assets/images/experience3.jpg';
 
 interface HeroProps {
   onScrollToRsvp: () => void;
@@ -189,8 +189,8 @@ export default function Hero({ onScrollToRsvp }: HeroProps) {
             <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-cream-stone">
               <img
                 src={heroImg}
-                alt="Gaj Kesri — the red-sandstone heritage palace venue in Bikaner"
-                className="w-full h-full object-cover object-[50%_46%] scale-[1.12]"
+                alt="Folk dancers performing before the red-sandstone palace at Gaj Kesri, Bikaner"
+                className="w-full h-full object-cover object-center"
               />
               <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-clay-dark/25 to-transparent pointer-events-none" />
             </div>

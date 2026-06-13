@@ -5,6 +5,7 @@ import { site } from './config';
 import Hero from './components/Hero';
 import Timeline from './components/Timeline';
 import Venue from './components/Venue';
+import Gallery from './components/Gallery';
 import RsvpForm from './components/RsvpForm';
 import AdminDashboard from './components/AdminDashboard';
 
@@ -109,6 +110,8 @@ export default function App() {
       <Timeline isFriendsAuthorized={isFriendsAuthorized} />
 
       <Venue />
+
+      <Gallery />
 
       <RsvpForm isFriendsAuthorized={isFriendsAuthorized} />
 

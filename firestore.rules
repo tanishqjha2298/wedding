@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. Global default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Global Validation Primitives
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isCrewAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'cmuskaan@google.com' &&
+        request.auth.token.email_verified == true
+      );
+    }
+
+    // 3. Validation helper for RSVPs (The "Anti-Update-Gap")
+    function isValidRsvp(rsvp) {
+      return rsvp.keys().hasAll(['fullName', 'attendance', 'selectedEvents', 'createdAt'])
+        && rsvp.keys().size() <= 5 // fullName, attendance, selectedEvents, songRequest (optional), createdAt
+        && rsvp.fullName is string
+        && rsvp.fullName.size() >= 1
+        && rsvp.fullName.size() <= 150
+        && rsvp.attendance is string
+        && (rsvp.attendance == 'YES' || rsvp.attendance == 'NO' || rsvp.attendance == 'VISA')
+        && rsvp.selectedEvents is map
+        && rsvp.selectedEvents.keys().size() <= 10
+        && (!rsvp.keys().hasAny(['songRequest']) || (rsvp.songRequest is string && rsvp.songRequest.size() <= 200))
+        && rsvp.createdAt == request.time;
+    }
+
+    // 4. Secure collection matches
+    match /rsvps/{rsvpId} {
+      // Crew admins can list and read responses
+      allow read, list: if isCrewAdmin();
+
+      // Open public creation of new guest RSVPs with strict schema validation
+      allow create: if isValidId(rsvpId) && isValidRsvp(request.resource.data);
+
+      // RSVPs are immutable once sent to prevent voter spoofing / override
+      allow update: if isCrewAdmin() && isValidRsvp(request.resource.data); // only admins can correct if needed
+      allow delete: if isCrewAdmin();
+    }
+  }
+}

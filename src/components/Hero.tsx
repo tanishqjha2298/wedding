@@ -9,7 +9,7 @@ interface HeroProps {
 }
 
 function useCountdown(targetISO: string) {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
     const target = new Date(targetISO).getTime();
@@ -17,13 +17,14 @@ function useCountdown(targetISO: string) {
     const update = () => {
       const diff = target - Date.now();
       if (diff <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0 });
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         return;
       }
       setTimeLeft({
         days: Math.floor(diff / 86_400_000),
         hours: Math.floor((diff % 86_400_000) / 3_600_000),
         minutes: Math.floor((diff % 3_600_000) / 60_000),
+        seconds: Math.floor((diff % 60_000) / 1000),
       });
     };
 
@@ -42,6 +43,7 @@ export default function Hero({ onScrollToRsvp }: HeroProps) {
     { value: timeLeft.days, label: 'days' },
     { value: String(timeLeft.hours).padStart(2, '0'), label: 'hrs' },
     { value: String(timeLeft.minutes).padStart(2, '0'), label: 'mins' },
+    { value: String(timeLeft.seconds).padStart(2, '0'), label: 'secs' },
   ];
 
   return (

@@ -8,6 +8,7 @@ import Venue from './components/Venue';
 import Gallery from './components/Gallery';
 import RsvpForm from './components/RsvpForm';
 import AdminDashboard from './components/AdminDashboard';
+import coupleImg from './assets/images/couple.jpg';
 
 export default function App() {
   // Friends-only events are revealed via a private link (?invite=friends or ?crew=true).
@@ -57,28 +58,53 @@ export default function App() {
     <div className="relative min-h-screen bg-cream text-stone-dark font-sans antialiased selection:bg-clay-rose selection:text-white">
       <Hero onScrollToRsvp={handleScrollToRsvp} isFriendsAuthorized={isFriendsAuthorized} />
 
-      {/* Verse divider */}
-      <section className="py-24 text-center px-6 border-y border-stone-warm bg-cream-stone bg-jaali-rose">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.4 }}
-          className="max-w-xl mx-auto space-y-5"
-        >
-          <span className="text-clay-rose text-xl">❧ 𑁍 ☙</span>
-          <p className="font-serif italic text-2xl md:text-3xl text-clay-dark leading-relaxed">
-            "To love is to see ourselves in another's eyes, and to weave a bond
-            as timeless as the golden sands of Bikaner."
-          </p>
-          <div className="flex items-center justify-center gap-3.5 text-stone-muted">
-            <span className="h-px w-8 bg-stone-warm" />
-            <span className="text-[10px] uppercase tracking-[0.25em] font-sans font-semibold">
-              Our Forever Begins
-            </span>
-            <span className="h-px w-8 bg-stone-warm" />
-          </div>
-        </motion.div>
+      {/* The couple — engagement photo paired with the verse */}
+      <section className="py-20 md:py-24 px-6 border-y border-stone-warm bg-cream-stone bg-jaali-rose">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 md:gap-14 items-center">
+          {/* Engagement photo */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1 }}
+            className="flex justify-center"
+          >
+            <div className="relative w-full max-w-[460px] p-2.5 sm:p-3 rounded-3xl bg-gradient-to-b from-sand-gold-light via-sand-gold to-clay-dark shadow-xl">
+              <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-cream-stone">
+                <img
+                  src={coupleImg}
+                  alt={`${site.couple.bride} & ${site.couple.groom}`}
+                  className="w-full h-full object-cover object-center"
+                />
+              </div>
+              <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-cream border border-sand-gold flex items-center justify-center shadow-md z-20">
+                <span className="font-display text-xs text-sand-gold font-bold">{site.couple.initials}</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Verse */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.4 }}
+            className="text-center md:text-left space-y-5"
+          >
+            <span className="text-clay-rose text-xl">❧ 𑁍 ☙</span>
+            <p className="font-serif italic text-2xl md:text-3xl text-clay-dark leading-relaxed">
+              "To love is to see ourselves in another's eyes, and to weave a bond
+              as timeless as the golden sands of Bikaner."
+            </p>
+            <div className="flex items-center justify-center md:justify-start gap-3.5 text-stone-muted">
+              <span className="h-px w-8 bg-stone-warm" />
+              <span className="text-[10px] uppercase tracking-[0.25em] font-sans font-semibold">
+                Our Forever Begins
+              </span>
+              <span className="h-px w-8 bg-stone-warm" />
+            </div>
+          </motion.div>
+        </div>
       </section>
 
       <Timeline isFriendsAuthorized={isFriendsAuthorized} />

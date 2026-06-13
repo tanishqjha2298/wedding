@@ -10,12 +10,18 @@ import {
   auth, db, ADMIN_EMAIL, isFirebaseConfigured,
   signInWithGoogle, logFirestoreError, OperationType,
 } from '../firebase';
-import { RsvpFormState } from '../types';
+import { RsvpFormState, GuestSide } from '../types';
+import { site } from '../config';
 
 interface FirebaseRsvp extends RsvpFormState {
   id: string;
   createdAt?: Timestamp | null;
 }
+
+const partySize = (r: FirebaseRsvp) => 1 + (r.additionalGuests?.length || 0);
+const partyNames = (r: FirebaseRsvp) => [r.fullName, ...(r.additionalGuests || [])].filter(Boolean);
+const sideLabel = (s: GuestSide | null | undefined) =>
+  s === 'BRIDE' ? `${site.couple.bride}'s` : s === 'GROOM' ? `${site.couple.groom}'s` : s === 'BOTH' ? 'Both' : '—';
 
 const eventNameMap: { [key: string]: string } = {
   haldi: 'Haldi',
@@ -68,6 +74,8 @@ export default function AdminDashboard() {
             return {
               id: d.id,
               fullName: data.fullName || '',
+              additionalGuests: data.additionalGuests || [],
+              side: data.side ?? null,
               attendance: data.attendance || null,
               selectedEvents: data.selectedEvents || {},
               songRequest: data.songRequest || '',
@@ -116,18 +124,30 @@ export default function AdminDashboard() {
     }
   };
 
-  // Stats
+  // Stats — entries (responses) vs headcount (actual people)
+  const headcount = (pred: (r: FirebaseRsvp) => boolean) =>
+    rsvps.filter(pred).reduce((sum, r) => sum + partySize(r), 0);
+
   const totalRsvps = rsvps.length;
   const countAttending = rsvps.filter((r) => r.attendance === 'YES').length;
   const countVisa = rsvps.filter((r) => r.attendance === 'VISA').length;
   const countDeclined = rsvps.filter((r) => r.attendance === 'NO').length;
+
+  const headcountYes = headcount((r) => r.attendance === 'YES');
+  const headcountVisa = headcount((r) => r.attendance === 'VISA');
+  const headcountComing = headcountYes + headcountVisa; // counts every named guest
+
+  // Side breakdown (people who are attending or visa-pending)
+  const sideHeadcount = (s: GuestSide) => headcount((r) => r.attendance !== 'NO' && r.side === s);
+
   const ceremonyCount = (id: string) =>
-    rsvps.filter((r) => r.attendance !== 'NO' && r.selectedEvents[id]).length;
+    headcount((r) => r.attendance !== 'NO' && r.selectedEvents[id]);
 
   const filteredRsvps = rsvps.filter((r) => {
     const q = searchQuery.toLowerCase();
     const matchesSearch =
-      r.fullName.toLowerCase().includes(q) || r.songRequest.toLowerCase().includes(q);
+      partyNames(r).some((n) => n.toLowerCase().includes(q)) ||
+      r.songRequest.toLowerCase().includes(q);
     const matchesFilter = filterAttendance === 'all' || r.attendance === filterAttendance;
     return matchesSearch && matchesFilter;
   });
@@ -240,10 +260,10 @@ export default function AdminDashboard() {
           {/* Counters */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Total Responses', value: totalRsvps, color: 'text-stone-dark', note: 'Live synchronized' },
-              { label: 'Attending (Yes)', value: countAttending, color: 'text-emerald-600', note: `${totalRsvps ? Math.round((countAttending / totalRsvps) * 100) : 0}% of responses` },
-              { label: 'Attending (Visa)', value: countVisa, color: 'text-amber-600', note: 'Pending visa' },
-              { label: 'Declining (No)', value: countDeclined, color: 'text-red-500', note: 'From afar' },
+              { label: 'Guests Coming', value: headcountComing, color: 'text-emerald-600', note: 'Total heads (Yes + Visa)' },
+              { label: 'Confirmed (Yes)', value: headcountYes, color: 'text-stone-dark', note: `${countAttending} ${countAttending === 1 ? 'response' : 'responses'}` },
+              { label: 'Visa Pending', value: headcountVisa, color: 'text-amber-600', note: `${countVisa} ${countVisa === 1 ? 'response' : 'responses'}` },
+              { label: 'Declined', value: countDeclined, color: 'text-red-500', note: `${totalRsvps} total responses` },
             ].map((stat) => (
               <div key={stat.label} className="p-5 rounded-2xl border border-stone-warm bg-white shadow-sm flex flex-col justify-between">
                 <span className="text-[10px] uppercase font-bold tracking-widest text-stone-muted font-sans block mb-1">
@@ -276,6 +296,28 @@ export default function AdminDashboard() {
                   <span className="text-xs font-semibold text-stone-dark">{c.name}</span>
                   <span className="text-[9px] text-stone-muted mt-0.5">{c.date}</span>
                   <div className="my-2.5 font-display text-3xl font-black text-clay-rose">{c.count}</div>
+                  <span className="text-[9px] uppercase tracking-wider text-stone-muted font-sans font-semibold">Guests</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Side breakdown */}
+          <div className="bg-cream-stone/60 border border-stone-warm p-5 sm:p-6 rounded-2xl">
+            <h4 className="font-serif italic text-base text-stone-dark flex items-center gap-1.5 mb-4">
+              <Users className="w-4 h-4 text-clay-rose shrink-0" />
+              Guests by Side (attending)
+            </h4>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              {[
+                { name: `${site.couple.bride}'s Side`, count: sideHeadcount('BRIDE'), color: 'bg-clay-rose' },
+                { name: `${site.couple.groom}'s Side`, count: sideHeadcount('GROOM'), color: 'bg-royal-blue' },
+                { name: 'Both', count: sideHeadcount('BOTH'), color: 'bg-sand-gold' },
+              ].map((s) => (
+                <div key={s.name} className="bg-white p-4 rounded-xl border border-stone-warm/50 flex flex-col justify-between shadow-sm relative overflow-hidden">
+                  <div className={`absolute top-0 inset-x-0 h-1 ${s.color}`} />
+                  <span className="text-xs font-semibold text-stone-dark">{s.name}</span>
+                  <div className="my-2.5 font-display text-3xl font-black text-clay-rose">{s.count}</div>
                   <span className="text-[9px] uppercase tracking-wider text-stone-muted font-sans font-semibold">Guests</span>
                 </div>
               ))}
@@ -337,7 +379,8 @@ export default function AdminDashboard() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-stone-warm/60 bg-stone-warm/5 text-[10px] sm:text-xs font-bold text-stone-muted uppercase tracking-wider">
-                      <th className="py-4 px-5">Guest</th>
+                      <th className="py-4 px-5">Guest / Party</th>
+                      <th className="py-4 px-5">Side</th>
                       <th className="py-4 px-5">Status</th>
                       <th className="py-4 px-5">Ceremonies</th>
                       <th className="py-4 px-5">Song Request</th>
@@ -347,7 +390,24 @@ export default function AdminDashboard() {
                   <tbody>
                     {filteredRsvps.map((rsvp) => (
                       <tr key={rsvp.id} className="border-b border-stone-warm/40 last:border-0 hover:bg-stone-warm/10 text-xs sm:text-sm text-stone-dark transition-colors">
-                        <td className="py-3.5 px-5 font-semibold">{rsvp.fullName}</td>
+                        <td className="py-3.5 px-5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">{rsvp.fullName}</span>
+                            {partySize(rsvp) > 1 && (
+                              <span className="px-1.5 py-0.5 rounded-full bg-clay-rose/10 text-clay-rose border border-clay-rose/20 text-[9px] font-bold shrink-0">
+                                +{partySize(rsvp) - 1}
+                              </span>
+                            )}
+                          </div>
+                          {rsvp.additionalGuests && rsvp.additionalGuests.length > 0 && (
+                            <div className="text-[10px] text-stone-muted font-light mt-0.5">
+                              with {rsvp.additionalGuests.join(', ')}
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-5">
+                          <span className="text-xs font-medium text-stone-dark/90">{sideLabel(rsvp.side)}</span>
+                        </td>
                         <td className="py-3.5 px-5">
                           {rsvp.attendance === 'YES' && (
                             <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] sm:text-xs font-bold">Attending</span>

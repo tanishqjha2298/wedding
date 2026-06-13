@@ -26,17 +26,22 @@ service cloud.firestore {
     }
 
     // 3. Validation helper for RSVPs (The "Anti-Update-Gap")
+    // Keys: fullName, side, attendance, selectedEvents, createdAt (required);
+    //       songRequest, additionalGuests (optional). Max 7.
     function isValidRsvp(rsvp) {
-      return rsvp.keys().hasAll(['fullName', 'attendance', 'selectedEvents', 'createdAt'])
-        && rsvp.keys().size() <= 5 // fullName, attendance, selectedEvents, songRequest (optional), createdAt
+      return rsvp.keys().hasAll(['fullName', 'side', 'attendance', 'selectedEvents', 'createdAt'])
+        && rsvp.keys().size() <= 7
         && rsvp.fullName is string
         && rsvp.fullName.size() >= 1
         && rsvp.fullName.size() <= 150
+        && rsvp.side is string
+        && (rsvp.side == 'BRIDE' || rsvp.side == 'GROOM' || rsvp.side == 'BOTH')
         && rsvp.attendance is string
         && (rsvp.attendance == 'YES' || rsvp.attendance == 'NO' || rsvp.attendance == 'VISA')
         && rsvp.selectedEvents is map
         && rsvp.selectedEvents.keys().size() <= 10
         && (!rsvp.keys().hasAny(['songRequest']) || (rsvp.songRequest is string && rsvp.songRequest.size() <= 200))
+        && (!rsvp.keys().hasAny(['additionalGuests']) || (rsvp.additionalGuests is list && rsvp.additionalGuests.size() <= 2))
         && rsvp.createdAt == request.time;
     }
 

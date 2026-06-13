@@ -20,10 +20,25 @@ export default function App() {
   );
 
   useEffect(() => {
+    // Friends unlock via a clean path (/friends, /crew) or query (?invite=friends,
+    // ?crew=true), then remembered for the rest of the browser session so a
+    // refresh or in-page navigation won't lose it.
     const params = new URLSearchParams(window.location.search);
-    setIsFriendsAuthorized(
-      params.get('crew') === 'true' || params.get('invite') === 'friends',
-    );
+    const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+    const friendsFromUrl =
+      params.get('crew') === 'true' ||
+      params.get('invite') === 'friends' ||
+      path === '/friends' ||
+      path === '/crew';
+
+    let remembered = false;
+    try {
+      if (friendsFromUrl) sessionStorage.setItem('friendsAuthorized', 'true');
+      remembered = sessionStorage.getItem('friendsAuthorized') === 'true';
+    } catch {
+      // sessionStorage may be unavailable (private mode) — fall back to URL only
+    }
+    setIsFriendsAuthorized(friendsFromUrl || remembered);
 
     const onHashChange = () => setIsManageView(window.location.hash === '#manage');
     window.addEventListener('hashchange', onHashChange);

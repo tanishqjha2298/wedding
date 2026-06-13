@@ -13,8 +13,8 @@ host dashboard.
 
 - **Hero** — names, live countdown, the real venue photo, and an RSVP call-to-action.
 - **Itinerary** — Haldi, Sangeet, Wedding and a friends-only after-party, each with
-  dress-code guidance. The friends-only event is revealed via a private link
-  (`?invite=friends`).
+  dress-code guidance. The friends-only event is revealed via a private link —
+  a clean path (`/friends`) or query (`?invite=friends`), remembered for the session.
 - **Travel & Stay** — the real Gaj Kesri venue, how to get to Bikaner (air / train /
   road), where you'll stay, what to pack, and what to explore nearby.
 - **RSVP** — a friendly multi-step form that saves responses to Firestore.

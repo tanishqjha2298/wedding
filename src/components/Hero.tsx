@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown, Calendar, MapPin } from 'lucide-react';
 import { site } from '../config';
-import venueImg from '../assets/images/gaj_kesari.webp';
+import heroImg from '../assets/images/facade1.jpg';
 
 interface HeroProps {
   onScrollToRsvp: () => void;
@@ -178,21 +178,21 @@ export default function Hero({ onScrollToRsvp }: HeroProps) {
           </motion.div>
         </div>
 
-        {/* Right: real venue photo in the scalloped sandstone arch */}
+        {/* Right: the full venue photo (uncropped — whole palace visible) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
           className="lg:col-span-5 flex justify-center px-4 relative"
         >
-          <div className="relative w-full max-w-[340px] sm:max-w-[360px] aspect-[4/5] p-3 sm:p-4 rounded-3xl bg-gradient-to-b from-sand-gold-light via-sand-gold to-clay-dark shadow-xl">
-            <div className="relative w-full h-full bg-cream-stone overflow-hidden clip-mihrab-arch">
+          <div className="relative w-full max-w-[460px] p-2.5 sm:p-3 rounded-3xl bg-gradient-to-b from-sand-gold-light via-sand-gold to-clay-dark shadow-xl">
+            <div className="relative overflow-hidden rounded-2xl bg-cream-stone">
               <img
-                src={venueImg}
+                src={heroImg}
                 alt="Gaj Kesri — the red-sandstone heritage palace venue in Bikaner"
-                className="w-full h-full object-cover object-center transition-transform duration-1000 hover:scale-105"
+                className="w-full h-auto object-cover align-middle"
               />
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-clay-dark/30 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-clay-dark/25 to-transparent pointer-events-none" />
             </div>
 
             <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-cream border border-sand-gold flex items-center justify-center shadow-md z-20">

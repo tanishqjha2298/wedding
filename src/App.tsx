@@ -9,30 +9,6 @@ import Gallery from './components/Gallery';
 import RsvpForm from './components/RsvpForm';
 import AdminDashboard from './components/AdminDashboard';
 
-/** Shared scalloped Mihrab arch clip-path used by the Hero image frame. */
-function ArchClipDefs() {
-  return (
-    <svg className="absolute w-0 h-0" width="0" height="0" aria-hidden="true">
-      <defs>
-        <clipPath id="clip-mihrab" clipPathUnits="objectBoundingBox">
-          <path
-            d="M 0.5 0
-               C 0.42 0.05, 0.38 0.08, 0.32 0.09
-               C 0.23 0.11, 0.18 0.15, 0.12 0.20
-               C 0.06 0.25, 0.03 0.34, 0.01 0.42
-               C 0.00 0.50, 0.00 0.60, 0.00 1.00
-               L 1.00 1.00
-               C 1.00 0.60, 1.00 0.50, 0.99 0.42
-               C 0.97 0.34, 0.94 0.25, 0.88 0.20
-               C 0.82 0.15, 0.77 0.11, 0.68 0.09
-               C 0.62 0.08, 0.58 0.05, 0.50 0 Z"
-          />
-        </clipPath>
-      </defs>
-    </svg>
-  );
-}
-
 export default function App() {
   // Friends-only events are revealed via a private link (?invite=friends or ?crew=true).
   const [isFriendsAuthorized, setIsFriendsAuthorized] = useState(false);
@@ -79,8 +55,6 @@ export default function App() {
   // ── Guest invitation ────────────────────────────────────────────────────
   return (
     <div className="relative min-h-screen bg-cream text-stone-dark font-sans antialiased selection:bg-clay-rose selection:text-white">
-      <ArchClipDefs />
-
       <Hero onScrollToRsvp={handleScrollToRsvp} />
 
       {/* Verse divider */}

@@ -52,11 +52,6 @@ body {
   background-size: 32px 32px;
 }
 
-/* Scalloped Mihrab archway mask (see the inline <clipPath> in App) */
-.clip-mihrab-arch {
-  clip-path: url(#clip-mihrab);
-}
-
 /* Subtle drawn gold underline used under timeline cards */
 .animate-gold-border {
   position: relative;

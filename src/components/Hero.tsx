@@ -6,6 +6,7 @@ import heroImg from '../assets/images/experience3.jpg';
 
 interface HeroProps {
   onScrollToRsvp: () => void;
+  isFriendsAuthorized: boolean;
 }
 
 function useCountdown(targetISO: string) {
@@ -36,7 +37,7 @@ function useCountdown(targetISO: string) {
   return timeLeft;
 }
 
-export default function Hero({ onScrollToRsvp }: HeroProps) {
+export default function Hero({ onScrollToRsvp, isFriendsAuthorized }: HeroProps) {
   const timeLeft = useCountdown(site.weddingStartISO);
 
   const countdownUnits = [
@@ -113,6 +114,11 @@ export default function Hero({ onScrollToRsvp }: HeroProps) {
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-medium tracking-tight text-stone-dark leading-none">
               {site.couple.bride}
             </h1>
+            {!isFriendsAuthorized && (
+              <p className="mt-2 font-serif italic text-sm sm:text-base text-stone-muted tracking-wide">
+                {site.couple.brideParentage}
+              </p>
+            )}
 
             <div className="relative w-full py-4 flex items-center justify-center lg:justify-start">
               <span className="absolute h-px w-48 bg-stone-warm" />
@@ -124,6 +130,11 @@ export default function Hero({ onScrollToRsvp }: HeroProps) {
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-medium tracking-tight text-stone-dark leading-none">
               {site.couple.groom}
             </h1>
+            {!isFriendsAuthorized && (
+              <p className="mt-2 font-serif italic text-sm sm:text-base text-stone-muted tracking-wide">
+                {site.couple.groomParentage}
+              </p>
+            )}
           </motion.div>
 
           <motion.p

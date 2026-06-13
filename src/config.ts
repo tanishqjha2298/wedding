@@ -8,6 +8,9 @@ export const site = {
     bride: 'Muskaan',
     groom: 'Tanishq',
     initials: 'M&T',
+    // Formal parentage — shown to family/guests, hidden on the ?invite=friends link.
+    brideParentage: 'Daughter of Prem & Ruchika Chugh',
+    groomParentage: 'Son of Naveen & Sapna Jha',
   },
 
   // Used by the live countdown. ISO 8601 with India Standard Time offset.

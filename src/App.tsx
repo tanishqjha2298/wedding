@@ -55,7 +55,7 @@ export default function App() {
   // ── Guest invitation ────────────────────────────────────────────────────
   return (
     <div className="relative min-h-screen bg-cream text-stone-dark font-sans antialiased selection:bg-clay-rose selection:text-white">
-      <Hero onScrollToRsvp={handleScrollToRsvp} />
+      <Hero onScrollToRsvp={handleScrollToRsvp} isFriendsAuthorized={isFriendsAuthorized} />
 
       {/* Verse divider */}
       <section className="py-24 text-center px-6 border-y border-stone-warm bg-cream-stone bg-jaali-rose">

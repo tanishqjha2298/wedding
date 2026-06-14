@@ -18,7 +18,7 @@ export const site = {
   dateLabel: 'November 25 & 26, 2026',
   dateShort: 'Nov 25 & 26, 2026',
 
-  rsvpDeadline: 'October 1st, 2026',
+  rsvpDeadline: 'August 1st, 2026',
 
   venue: {
     name: 'Gaj Kesri',

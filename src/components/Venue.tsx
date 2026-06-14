@@ -42,10 +42,8 @@ const explore = [
   { name: 'Rampuria Havelis', desc: 'Ornate red-sandstone facades', q: 'Rampuria Haveli Bikaner' },
   { name: 'Karni Mata Temple', desc: 'The famed temple of rats', q: 'Karni Mata Temple Deshnoke' },
   { name: 'Camel Desert Safari', desc: 'Golden dune sunset rides', q: 'Camel Safari Bikaner' },
-  { name: 'Camel Research Centre', desc: 'The national camel farm', q: 'National Research Centre on Camel Bikaner' },
   { name: 'Gajner Palace & Lake', desc: 'Wildlife desert oasis', q: 'Gajner Palace Bikaner' },
   { name: 'Devi Kund Sagar', desc: 'Royal cenotaph spires', q: 'Devi Kund Sagar Bikaner' },
-  { name: 'Bhujia Bazaar', desc: 'World-famous savouries', q: 'Bhujia Bazaar Bikaner' },
 ];
 
 // Nearby Rajasthan cities to extend the trip

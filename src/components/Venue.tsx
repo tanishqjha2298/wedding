@@ -16,7 +16,7 @@ const gettingThere = [
   {
     icon: Plane,
     title: 'By Air',
-    body: 'Nal Airport, Bikaner (BKB) has direct flights from Delhi. Jodhpur (JDH, ~250 km) and Jaipur (JAI, ~330 km) are larger alternatives with scenic onward drives.',
+    body: 'Nal Airport, Bikaner (BKB) has very limited service — about one flight a day from Delhi — so be sure to book well in advance!',
   },
   {
     icon: TrainFront,

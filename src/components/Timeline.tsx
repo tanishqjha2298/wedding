@@ -46,8 +46,8 @@ export default function Timeline({ isFriendsAuthorized }: TimelineProps) {
       case 'wedding':
         return {
           title: 'The Auspicious Vows Attire:',
-          attire: 'Traditional Bikaneri Royal Couture, Saffron, Ivory, Sand-gold, Rose-Clay',
-          tip: 'Wear absolute Indian classic elegance. Turbans will be provided at the entrance.'
+          attire: 'Come as you please',
+          tip: 'No set dress code for the ceremony — traditional Indian wear is always welcome, but wear whatever makes you feel your best.'
         };
       case 'friendshang':
         return {

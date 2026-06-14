@@ -16,7 +16,7 @@ const gettingThere = [
   {
     icon: Plane,
     title: 'By Air',
-    body: 'Nal Airport, Bikaner (BKB) has very limited service — about one flight a day from Delhi — so be sure to book well in advance!',
+    body: 'Nal Airport, Bikaner (BKB) with very limited service — about one flight a day from Delhi — so be sure to book well in advance!',
   },
   {
     icon: TrainFront,

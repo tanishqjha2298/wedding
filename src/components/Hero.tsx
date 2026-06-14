@@ -143,9 +143,18 @@ export default function Hero({ onScrollToRsvp, isFriendsAuthorized }: HeroProps)
             transition={{ duration: 1.2, delay: 0.8 }}
             className="text-xs sm:text-sm font-sans font-light tracking-wide text-stone-dark/85 max-w-md leading-relaxed"
           >
-            With joyful hearts, we request the honour of your presence as we
-            exchange our vows amidst the red-sandstone courtyards and royal
-            heritage of {site.venue.name}, Bikaner.
+            {isFriendsAuthorized ? (
+              <>
+                Pack your dancing shoes and your appetite — we're getting married
+                in the red-sandstone courtyards of {site.venue.name}, Bikaner.
+              </>
+            ) : (
+              <>
+                With joyful hearts, we request the honour of your presence as we
+                exchange our vows amidst the red-sandstone courtyards and royal
+                heritage of {site.venue.name}, Bikaner.
+              </>
+            )}
           </motion.p>
 
           {/* Countdown */}

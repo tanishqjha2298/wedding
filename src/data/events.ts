@@ -14,7 +14,7 @@ export const weddingEvents: WeddingEvent[] = [
     name: 'Sangeet & Cocktail',
     date: 'Wednesday, November 25, 2026',
     time: '7:00 PM - Till you can dance',
-    description: 'An evening of spirited musical performances, stellar dance moves, and a celebratory dinner.',
+    description: 'An evening of glam and high energy — dancing, music, cocktails, and one unforgettable party.',
     vibe: 'High-energy, melodic, and celebratory.'
   },
   {

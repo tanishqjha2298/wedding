@@ -40,8 +40,8 @@ export default function Timeline({ isFriendsAuthorized }: TimelineProps) {
       case 'sangeet':
         return {
           title: 'Vibe & Attire Dresscode:',
-          attire: 'Indo-Western, Royal Emerald Green, Midnight Indigo, Gold Blends',
-          tip: 'Bring your dance shoes! Sequins, mirrors, and block prints glitter the court.'
+          attire: 'Red-carpet glam — your most dazzling cocktail or Indo-Western looks',
+          tip: 'All glammed up, A-game on. Come camera-ready — a little red-carpet surprise awaits.'
         };
       case 'wedding':
         return {

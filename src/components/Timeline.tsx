@@ -52,8 +52,8 @@ export default function Timeline({ isFriendsAuthorized }: TimelineProps) {
       case 'friendshang':
         return {
           title: 'Bonfire Acoustic Attire:',
-          attire: 'Warm Cozy Cashmere, Pashminas, Olive Sage, Smart Casuals',
-          tip: 'Desert night winds can get quite chilly. Shawls and local ethnic jackets are perfect.'
+          attire: 'Casuals, comfy pajamas, relaxed vibes only',
+          tip: 'Desert night winds can get quite chilly — bring something warm to cozy up in.'
         };
       default:
         return null;

@@ -145,8 +145,9 @@ export default function Hero({ onScrollToRsvp, isFriendsAuthorized }: HeroProps)
           >
             {isFriendsAuthorized ? (
               <>
-                Pack your dancing shoes and your appetite — we're getting married
-                in the red-sandstone courtyards of {site.venue.name}, Bikaner.
+                It's official: we're doing the damn thing. Turns out we actually
+                like each other enough to make this permanent. Come watch us make
+                it official!
               </>
             ) : (
               <>

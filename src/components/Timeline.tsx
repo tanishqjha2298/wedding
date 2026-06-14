@@ -34,8 +34,8 @@ export default function Timeline({ isFriendsAuthorized }: TimelineProps) {
       case 'haldi':
         return {
           title: 'Vibe & Attire Dresscode:',
-          attire: 'Shades of Mustard Yellow, Saffron, Honey Suckle',
-          tip: 'Folk styles like Bandhani, Leheriya, Kurtas are highly recommended.'
+          attire: 'TBD',
+          tip: 'Theme & dress code to be announced soon — stay tuned!'
         };
       case 'sangeet':
         return {

@@ -9,6 +9,7 @@ import Gallery from './components/Gallery';
 import RsvpForm from './components/RsvpForm';
 import AdminDashboard from './components/AdminDashboard';
 import coupleImg from './assets/images/couple.jpg';
+import proposalImg from './assets/images/proposal.jpg';
 
 export default function App() {
   // Friends-only events are revealed via a private link (?invite=friends or ?crew=true).
@@ -84,10 +85,10 @@ export default function App() {
             transition={{ duration: 1 }}
             className="flex justify-center"
           >
-            <div className="relative w-full max-w-[460px] p-2.5 sm:p-3 rounded-3xl bg-gradient-to-b from-sand-gold-light via-sand-gold to-clay-dark shadow-xl">
-              <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-cream-stone">
+            <div className={`relative w-full ${isFriendsAuthorized ? 'max-w-[460px]' : 'max-w-[420px]'} p-2.5 sm:p-3 rounded-3xl bg-gradient-to-b from-sand-gold-light via-sand-gold to-clay-dark shadow-xl`}>
+              <div className={`relative ${isFriendsAuthorized ? 'aspect-[3/2]' : 'aspect-[3/4]'} overflow-hidden rounded-2xl bg-cream-stone`}>
                 <img
-                  src={coupleImg}
+                  src={isFriendsAuthorized ? coupleImg : proposalImg}
                   alt={`${site.couple.bride} & ${site.couple.groom}`}
                   className="w-full h-full object-cover object-center"
                 />

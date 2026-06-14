@@ -22,7 +22,7 @@ export const weddingEvents: WeddingEvent[] = [
     name: 'The Auspicious Wedding',
     date: 'Thursday, November 26, 2026',
     time: '12:00 PM - 5:00 PM',
-    description: 'The main traditional ceremony followed by high tea, marking the start of our eternal bond.',
+    description: 'The big moment! The baraat rolls in at 12, jaimala at 1, and our pheras around the sacred fire from 2 to 4 — come watch us tie the knot.',
     vibe: 'Serene, celestial, and timelessly elegant.'
   },
   {

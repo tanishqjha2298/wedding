@@ -7,6 +7,7 @@ import {
   ThermometerSun,
   MapPin,
   Info,
+  ArrowUpRight,
 } from 'lucide-react';
 import { site } from '../config';
 import venueImg from '../assets/images/gaj_kesari.webp';
@@ -29,13 +30,30 @@ const gettingThere = [
   },
 ];
 
+// Google Maps search link (no API key needed)
+const mapsUrl = (q: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+// Google search link (good for trip-planning)
+const searchUrl = (q: string) =>
+  `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+
 const explore = [
-  { name: 'Junagarh Fort', desc: 'Unconquered carved courts' },
-  { name: 'Rampuria Havelis', desc: 'Ornate red-sandstone facades' },
-  { name: 'Devi Kund Sagar', desc: 'Royal cenotaph spires' },
-  { name: 'Gajner Palace & Lake', desc: 'Wildlife desert oasis' },
-  { name: 'Camel Research Centre', desc: 'Golden dune safaris' },
-  { name: 'Bhujia Bazaar', desc: 'World-famous savouries' },
+  { name: 'Junagarh Fort', desc: 'Unconquered carved courts', q: 'Junagarh Fort Bikaner' },
+  { name: 'Rampuria Havelis', desc: 'Ornate red-sandstone facades', q: 'Rampuria Haveli Bikaner' },
+  { name: 'Karni Mata Temple', desc: 'The famed temple of rats', q: 'Karni Mata Temple Deshnoke' },
+  { name: 'Camel Desert Safari', desc: 'Golden dune sunset rides', q: 'Camel Safari Bikaner' },
+  { name: 'Camel Research Centre', desc: 'The national camel farm', q: 'National Research Centre on Camel Bikaner' },
+  { name: 'Gajner Palace & Lake', desc: 'Wildlife desert oasis', q: 'Gajner Palace Bikaner' },
+  { name: 'Devi Kund Sagar', desc: 'Royal cenotaph spires', q: 'Devi Kund Sagar Bikaner' },
+  { name: 'Bhujia Bazaar', desc: 'World-famous savouries', q: 'Bhujia Bazaar Bikaner' },
+];
+
+// Nearby Rajasthan cities to extend the trip
+const nearby = [
+  { name: 'Jodhpur', desc: 'The Blue City · ~5 hrs', q: 'things to do in Jodhpur Rajasthan' },
+  { name: 'Jaisalmer', desc: 'Golden City & dunes · ~6 hrs', q: 'things to do in Jaisalmer Rajasthan' },
+  { name: 'Jaipur', desc: 'The Pink City · ~6 hrs', q: 'things to do in Jaipur Rajasthan' },
+  { name: 'Udaipur', desc: 'City of Lakes · ~9 hrs', q: 'things to do in Udaipur Rajasthan' },
 ];
 
 export default function Venue() {
@@ -169,20 +187,50 @@ export default function Venue() {
           </motion.div>
         </div>
 
-        {/* Explore */}
-        <div>
+        {/* Explore Bikaner */}
+        <div className="mb-10">
           <span className="text-[10px] tracking-widest uppercase font-bold text-mandarin block mb-3 font-sans text-center sm:text-left">
             ✧ While You're in Bikaner
           </span>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {explore.map((place) => (
-              <div
+              <a
                 key={place.name}
-                className="p-4 bg-white rounded-xl border border-stone-warm flex flex-col justify-between hover:border-clay-rose/40 transition-colors"
+                href={mapsUrl(place.q)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group p-4 bg-white rounded-xl border border-stone-warm flex flex-col justify-between hover:border-clay-rose/40 hover:shadow-sm transition-all"
               >
-                <span className="text-xs sm:text-sm font-semibold text-stone-dark">{place.name}</span>
+                <span className="text-xs sm:text-sm font-semibold text-stone-dark flex items-center justify-between gap-1">
+                  {place.name}
+                  <ArrowUpRight className="w-3.5 h-3.5 text-sand-gold opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                </span>
                 <span className="text-[10px] sm:text-[11px] text-stone-muted italic mt-0.5">{place.desc}</span>
-              </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Extend your trip in Rajasthan */}
+        <div>
+          <span className="text-[10px] tracking-widest uppercase font-bold text-mandarin block mb-3 font-sans text-center sm:text-left">
+            ✧ Extend Your Trip in Rajasthan
+          </span>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {nearby.map((city) => (
+              <a
+                key={city.name}
+                href={searchUrl(city.q)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group p-4 bg-white rounded-xl border border-stone-warm flex flex-col justify-between hover:border-clay-rose/40 hover:shadow-sm transition-all"
+              >
+                <span className="text-xs sm:text-sm font-semibold text-stone-dark flex items-center justify-between gap-1">
+                  {city.name}
+                  <ArrowUpRight className="w-3.5 h-3.5 text-sand-gold opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-stone-muted italic mt-0.5">{city.desc}</span>
+              </a>
             ))}
           </div>
         </div>

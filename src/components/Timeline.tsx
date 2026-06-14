@@ -80,7 +80,7 @@ export default function Timeline({ isFriendsAuthorized }: TimelineProps) {
         </div>
         
         <p className="text-xs sm:text-sm font-sans font-light tracking-wide text-stone-muted max-w-md mx-auto leading-relaxed">
-          Celebrate each distinct chapter of our sacred union. We have curated every ceremony to honor traditional Rajasthani custom combined with modern joy.
+          A little bit of tradition, a lot of celebration, and all of our favorite people. Here's what we've got planned for the festivities.
         </p>
       </div>
 

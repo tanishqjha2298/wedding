@@ -21,12 +21,12 @@ const gettingThere = [
   {
     icon: TrainFront,
     title: 'By Train',
-    body: 'Bikaner Junction is well connected to Delhi, Jaipur and Jodhpur — including overnight and the Bikaner–Delhi superfast services.',
+    body: 'Bikaner Junction is well connected to Delhi and Jaipur — including overnight and the Bikaner–Delhi superfast services.',
   },
   {
     icon: Car,
     title: 'By Road',
-    body: 'Roughly 5 hrs from Jodhpur, 6 hrs from Jaipur and 8–9 hrs from Delhi across the Thar. Tell us your plans — we can help arrange airport transfers.',
+    body: 'Roughly 6 hrs from Jaipur and 8–9 hrs from Delhi across the Thar. Tell us your plans — we can help arrange airport transfers.',
   },
 ];
 

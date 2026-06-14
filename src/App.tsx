@@ -108,8 +108,8 @@ export default function App() {
           >
             <span className="text-clay-rose text-xl">❧ 𑁍 ☙</span>
             <p className="font-serif italic text-2xl md:text-3xl text-clay-dark leading-relaxed">
-              "To love is to see ourselves in another's eyes, and to weave a bond
-              as timeless as the golden sands of Bikaner."
+              From a rooftop in New York to a palace in Bikaner — come along for
+              the best chapter yet.
             </p>
             <div className="flex items-center justify-center md:justify-start gap-3.5 text-stone-muted">
               <span className="h-px w-8 bg-stone-warm" />

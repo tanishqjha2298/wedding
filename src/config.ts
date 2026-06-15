@@ -71,11 +71,13 @@ export const gifts: {
     items: [
       {
         name: 'Espresso Machine',
-        note: 'Slow mornings, just the two of us',
+        note: 'Breville Bambino Plus — slow mornings, just the two of us',
+        link: 'https://www.google.com/search?q=Breville+Bambino+Plus+Espresso+Machine',
       },
       {
         name: 'Bedding Set',
         note: 'Soft layers for cozy nights',
+        // link: '', // add a link here whenever you pick one
       },
       {
         name: 'More coming soon',

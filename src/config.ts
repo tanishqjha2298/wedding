@@ -100,7 +100,7 @@ export const gifts: {
         handleLabel: 'UPI ID',
         entries: [
           { name: 'Muskaan', handle: 'muskaanchugh.chugh22@okhdbcbank' },
-          { name: 'Tanishq', handle: '7999438185@ptys' },
+          { name: 'Tanishq', handle: '7999438185@ptyes' },
         ],
       },
       {

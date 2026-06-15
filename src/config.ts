@@ -75,11 +75,6 @@ export const gifts: {
         link: 'https://www.google.com/search?q=Breville+Bambino+Plus+Espresso+Machine',
       },
       {
-        name: 'Bedding Set',
-        note: 'Soft layers for cozy nights',
-        // link: '', // add a link here whenever you pick one
-      },
-      {
         name: 'More coming soon',
         note: 'We’re still curating our list — check back as the day draws closer!',
         placeholder: true,

@@ -51,16 +51,16 @@ function PayCard({ method }: { method: PayMethod }) {
         </span>
       </div>
 
-      {method.name && (
-        <p className="text-xs font-sans text-stone-muted mb-3">To: {method.name}</p>
-      )}
-
-      <CopyHandle value={method.handle} label={method.handleLabel} />
+      <div className="space-y-3">
+        {method.entries.map((entry) => (
+          <CopyHandle key={entry.handle} value={entry.handle} label={entry.name} />
+        ))}
+      </div>
 
       <p className="mt-4 text-[11px] font-sans text-stone-muted text-center leading-relaxed">
-        {method.type === 'upi' && 'Copy the UPI ID into any UPI app to send.'}
-        {method.type === 'zelle' && 'Send via Zelle in your banking app to the number above.'}
-        {method.type === 'venmo' && 'Search this username in the Venmo app to send.'}
+        {method.type === 'upi' && 'Copy either UPI ID into any UPI app to send.'}
+        {method.type === 'zelle' && 'Send via Zelle to either number in your banking app.'}
+        {method.type === 'venmo' && 'Search either username in the Venmo app to send.'}
       </p>
     </motion.div>
   );

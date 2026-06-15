@@ -45,14 +45,18 @@ export interface WishlistItem {
 
 export type PayType = 'upi' | 'zelle' | 'venmo';
 
+export interface PayEntry {
+  name: string;   // whose handle this is
+  handle: string; // UPI ID / Zelle email or phone / Venmo username
+}
+
 export interface PayMethod {
   type: PayType;
   enabled: boolean;
   label: string;       // e.g. 'Google Pay (UPI)'
   currency: string;    // e.g. 'INR' or 'USD'
-  handle: string;      // UPI ID / Zelle email or phone / Venmo username
   handleLabel: string; // e.g. 'UPI ID', 'Zelle email', 'Venmo username'
-  name?: string;       // account holder name (used for the UPI pay link)
+  entries: PayEntry[]; // one per person
 }
 
 export const gifts: {
@@ -93,26 +97,33 @@ export const gifts: {
         enabled: true,
         label: 'Google Pay (UPI)',
         currency: 'INR',
-        handle: 'muskaanchugh.chugh22@okhdbcbank',
         handleLabel: 'UPI ID',
-        name: 'Muskaan Chugh',
+        entries: [
+          { name: 'Muskaan', handle: 'muskaanchugh.chugh22@okhdbcbank' },
+          { name: 'Tanishq', handle: '7999438185@ptys' },
+        ],
       },
       {
         type: 'zelle',
         enabled: true,
         label: 'Zelle',
         currency: 'USD',
-        handle: '9496659076',
         handleLabel: 'Zelle email / phone',
-        name: 'Muskaan Chugh',
+        entries: [
+          { name: 'Muskaan', handle: '9496659076' },
+          { name: 'Tanishq', handle: '9499980861' },
+        ],
       },
       {
         type: 'venmo',
         enabled: true,
         label: 'Venmo',
         currency: 'USD',
-        handle: '@Muskaan-Chugh',
         handleLabel: 'Venmo username',
+        entries: [
+          { name: 'Muskaan', handle: '@Muskaan-Chugh' },
+          { name: 'Tanishq', handle: '@Tanishq-Jha' },
+        ],
       },
     ],
   },

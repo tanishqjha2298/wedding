@@ -6,7 +6,7 @@ export const weddingEvents: WeddingEvent[] = [
     name: 'Haldi Ceremony',
     date: 'Wednesday, November 25, 2026',
     time: '12:00 PM - 3:00 PM',
-    description: 'Bright flowers, poolside views, and friendly competition. Come for the phoolon ki haldi and games, stay for a relaxed lunch with the crew.',
+    description: 'Bright flowers, poolside views, and friendly competition. Come for the phoolon ki haldi and games, stay for a relaxed lunch together.',
     vibe: 'Sun-drenched, cheerful, and deeply traditional.'
   },
   {

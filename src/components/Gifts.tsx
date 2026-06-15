@@ -43,7 +43,6 @@ function PayCard({ method }: { method: PayMethod }) {
         method.name ? `&pn=${encodeURIComponent(method.name)}` : ''
       }&cu=INR`
     : null;
-  const venmoLink = method.type === 'venmo' ? `https://venmo.com/u/${method.handle.replace(/^@/, '')}` : null;
 
   return (
     <motion.div
@@ -77,31 +76,11 @@ function PayCard({ method }: { method: PayMethod }) {
 
       <CopyHandle value={method.handle} label={method.handleLabel} />
 
-      <div className="mt-4 flex flex-col gap-2">
-        {upiLink && (
-          <a
-            href={upiLink}
-            className="inline-flex items-center justify-center gap-2 bg-clay-rose text-white text-xs font-sans font-bold uppercase tracking-wider px-4 py-2.5 rounded-full hover:bg-clay-dark transition-colors"
-          >
-            <Heart className="w-3.5 h-3.5" /> Pay via UPI
-          </a>
-        )}
-        {venmoLink && (
-          <a
-            href={venmoLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 bg-clay-rose text-white text-xs font-sans font-bold uppercase tracking-wider px-4 py-2.5 rounded-full hover:bg-clay-dark transition-colors"
-          >
-            <ExternalLink className="w-3.5 h-3.5" /> Open in Venmo
-          </a>
-        )}
-        {method.type === 'zelle' && (
-          <p className="text-[11px] font-sans text-stone-muted text-center leading-relaxed">
-            Send via Zelle in your banking app to the address above.
-          </p>
-        )}
-      </div>
+      <p className="mt-4 text-[11px] font-sans text-stone-muted text-center leading-relaxed">
+        {method.type === 'upi' && 'Scan the QR or copy the UPI ID in any UPI app.'}
+        {method.type === 'zelle' && 'Send via Zelle in your banking app to the number above.'}
+        {method.type === 'venmo' && 'Search this username in the Venmo app to send.'}
+      </p>
     </motion.div>
   );
 }

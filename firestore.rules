@@ -16,13 +16,15 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // NOTE: keep this email in sync with VITE_ADMIN_EMAIL in your hosting env.
-    // This is the Google account allowed to read/manage the RSVP registry.
+    // NOTE: keep this list in sync with ADMIN_EMAILS in src/firebase.ts.
+    // These Google accounts may read/manage the RSVP registry.
     function isHostAdmin() {
-      return isSignedIn() && (
-        request.auth.token.email == 'jhatanishq2298@gmail.com' &&
-        request.auth.token.email_verified == true
-      );
+      return isSignedIn() &&
+        request.auth.token.email_verified == true &&
+        request.auth.token.email in [
+          'jhatanishq2298@gmail.com',
+          'muskaanchugh27@gmail.com'
+        ];
     }
 
     // 3. Validation helper for RSVPs (The "Anti-Update-Gap")

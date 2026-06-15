@@ -7,7 +7,7 @@ import {
 import { onAuthStateChanged, User as FirebaseUser, signOut } from 'firebase/auth';
 import { collection, onSnapshot, query, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 import {
-  auth, db, ADMIN_EMAIL, isFirebaseConfigured,
+  auth, db, ADMIN_EMAILS, isFirebaseConfigured,
   signInWithGoogle, logFirestoreError, OperationType,
 } from '../firebase';
 import { RsvpFormState, GuestSide } from '../types';
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const isAdmin = Boolean(
-    user?.email && ADMIN_EMAIL && user.email.toLowerCase() === ADMIN_EMAIL,
+    user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase()),
   );
 
   // Monitor auth state

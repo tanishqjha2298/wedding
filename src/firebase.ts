@@ -32,8 +32,15 @@ const firebaseConfig = {
 // Optional: a non-default named Firestore database. Leave unset to use "(default)".
 const firestoreDatabaseId = import.meta.env.VITE_FIREBASE_DB_ID;
 
-// The Gmail address allowed to view the host RSVP dashboard.
-export const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || '').toLowerCase();
+// Gmail addresses allowed to view the host RSVP dashboard.
+// Baked-in defaults (the two hosts), plus any comma-separated extras from env.
+// NOTE: keep this list in sync with isHostAdmin() in firestore.rules.
+const DEFAULT_ADMINS = ['jhatanishq2298@gmail.com', 'muskaanchugh27@gmail.com'];
+const envAdmins = (import.meta.env.VITE_ADMIN_EMAIL || '')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+export const ADMIN_EMAILS = Array.from(new Set([...DEFAULT_ADMINS, ...envAdmins]));
 
 /** True only when the minimum Firebase config is present. */
 export const isFirebaseConfigured = Boolean(

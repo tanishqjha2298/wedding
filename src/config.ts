@@ -30,3 +30,98 @@ export const site = {
       'https://www.google.com/maps/search/?api=1&query=Brij%20Gaj%20Kesri%20Bikaner',
   },
 } as const;
+
+// ── Gifts & Blessings page ──────────────────────────────────────────────────
+// Edit your curated wishlist and honeymoon-fund payment handles here.
+
+export interface WishlistItem {
+  name: string;
+  note?: string;   // a short line about why you'd love it
+  price?: string;  // free text, e.g. '$350' or '₹5,000'
+  link?: string;   // where to buy / view (optional)
+  image?: string;  // image URL (optional)
+}
+
+export type PayType = 'upi' | 'zelle' | 'venmo';
+
+export interface PayMethod {
+  type: PayType;
+  enabled: boolean;
+  label: string;       // e.g. 'Google Pay (UPI)'
+  currency: string;    // e.g. 'INR' or 'USD'
+  handle: string;      // UPI ID / Zelle email or phone / Venmo username
+  handleLabel: string; // e.g. 'UPI ID', 'Zelle email', 'Venmo username'
+  name?: string;       // account holder name (used for the UPI pay link)
+}
+
+export const gifts: {
+  intro: string;
+  wishlist: { enabled: boolean; heading: string; blurb: string; items: WishlistItem[] };
+  honeymoon: { enabled: boolean; heading: string; blurb: string; methods: PayMethod[] };
+} = {
+  intro:
+    "Truly — having you celebrate with us in Bikaner means the world. But if you'd like to bless us as we begin this new chapter, here are a few ways to do so.",
+
+  wishlist: {
+    enabled: true,
+    heading: 'Our Wishlist',
+    blurb: 'A few things we’re dreaming of for our first home together.',
+    // TODO: replace these samples with your curated list.
+    items: [
+      {
+        name: 'Le Creuset Dutch Oven',
+        note: 'For our first home-cooked meals together',
+        price: '$350',
+        link: '',
+      },
+      {
+        name: 'Espresso Machine',
+        note: 'Slow mornings, just the two of us',
+        price: '$600',
+        link: '',
+      },
+      {
+        name: 'Handwoven Throw Blanket',
+        note: 'Cozy evenings in',
+        price: '$120',
+        link: '',
+      },
+    ],
+  },
+
+  honeymoon: {
+    enabled: true,
+    heading: 'Honeymoon Fund',
+    blurb:
+      'From a rooftop in New York to a palace in Bikaner — help us write the next chapter. Sponsor our honeymoon adventures!',
+    // TODO: replace placeholder handles with your real ones.
+    methods: [
+      {
+        type: 'upi',
+        enabled: true,
+        label: 'Google Pay (UPI)',
+        currency: 'INR',
+        handle: 'add-your-upi@bank',
+        handleLabel: 'UPI ID',
+        name: 'Tanishq Jha',
+      },
+      {
+        type: 'zelle',
+        enabled: true,
+        label: 'Zelle',
+        currency: 'USD',
+        handle: 'your-email@example.com',
+        handleLabel: 'Zelle email / phone',
+        name: 'Muskaan Chugh',
+      },
+      {
+        type: 'venmo',
+        enabled: true,
+        label: 'Venmo',
+        currency: 'USD',
+        handle: 'your-venmo',
+        handleLabel: 'Venmo username',
+      },
+    ],
+  },
+};

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
+import { QRCodeSVG } from 'qrcode.react';
 import { ArrowLeft, Heart, Copy, Check, ExternalLink, Plane, Gift } from 'lucide-react';
 import { gifts, site, type PayMethod, type WishlistItem } from '../config';
 
@@ -61,6 +62,17 @@ function PayCard({ method }: { method: PayMethod }) {
 
       {method.name && (
         <p className="text-xs font-sans text-stone-muted mb-3">To: {method.name}</p>
+      )}
+
+      {isUpi && upiLink && (
+        <div className="flex flex-col items-center mb-4">
+          <div className="bg-white p-3 rounded-xl border border-stone-warm">
+            <QRCodeSVG value={upiLink} size={132} bgColor="#ffffff" fgColor="#2e211b" level="M" />
+          </div>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-stone-muted mt-2">
+            Scan with any UPI app
+          </p>
+        </div>
       )}
 
       <CopyHandle value={method.handle} label={method.handleLabel} />

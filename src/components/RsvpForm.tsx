@@ -406,9 +406,6 @@ export default function RsvpForm({ isFriendsAuthorized }: RsvpFormProps) {
                               <div className="flex flex-col">
                                 <span className="text-xs sm:text-sm font-sans font-semibold text-stone-dark flex items-center gap-2">
                                   {event.name}
-                                  {event.isFriendsOnly && (
-                                    <span className="text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-sand-gold border border-sand-gold/30 font-bold">Crew</span>
-                                  )}
                                 </span>
                                 <span className="text-[10px] md:text-[11px] font-mono text-sand-gold mt-1 uppercase tracking-wider font-semibold">
                                   {event.date.split(',')[1]} at {event.time.split(' ')[0]} {event.time.split(' ')[1]}

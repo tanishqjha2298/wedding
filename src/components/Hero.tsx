@@ -87,15 +87,6 @@ export default function Hero({ onScrollToRsvp, isFriendsAuthorized }: HeroProps)
         {/* Left: editorial typography */}
         <div className="lg:col-span-6 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 md:space-y-8 px-2 sm:px-4">
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.2 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-50/70 border border-mandarin/15 text-mandarin text-[10px] md:text-xs font-sans tracking-widest uppercase font-semibold"
-          >
-            ✦ A Royal Rajasthani Wedding
-          </motion.div>
-
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

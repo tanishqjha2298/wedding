@@ -99,7 +99,7 @@ export const gifts: {
         currency: 'INR',
         handleLabel: 'UPI ID',
         entries: [
-          { name: 'Muskaan', handle: 'muskaanchugh.chugh22@okhdbcbank' },
+          { name: 'Muskaan', handle: 'muskaanchugh.chugh22@okhdfcbank' },
           { name: 'Tanishq', handle: '7999438185@ptyes' },
         ],
       },

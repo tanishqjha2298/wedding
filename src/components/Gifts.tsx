@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { QRCodeSVG } from 'qrcode.react';
 import { ArrowLeft, Heart, Copy, Check, ExternalLink, Plane, Gift } from 'lucide-react';
 import { gifts, site, type PayMethod, type WishlistItem } from '../config';
 
@@ -37,13 +36,6 @@ function CopyHandle({ value, label }: { value: string; label: string }) {
 }
 
 function PayCard({ method }: { method: PayMethod }) {
-  const isUpi = method.type === 'upi';
-  const upiLink = isUpi
-    ? `upi://pay?pa=${encodeURIComponent(method.handle)}${
-        method.name ? `&pn=${encodeURIComponent(method.name)}` : ''
-      }&cu=INR`
-    : null;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -63,21 +55,10 @@ function PayCard({ method }: { method: PayMethod }) {
         <p className="text-xs font-sans text-stone-muted mb-3">To: {method.name}</p>
       )}
 
-      {isUpi && upiLink && (
-        <div className="flex flex-col items-center mb-4">
-          <div className="bg-white p-3 rounded-xl border border-stone-warm">
-            <QRCodeSVG value={upiLink} size={132} bgColor="#ffffff" fgColor="#2e211b" level="M" />
-          </div>
-          <p className="text-[10px] font-mono uppercase tracking-widest text-stone-muted mt-2">
-            Scan with any UPI app
-          </p>
-        </div>
-      )}
-
       <CopyHandle value={method.handle} label={method.handleLabel} />
 
       <p className="mt-4 text-[11px] font-sans text-stone-muted text-center leading-relaxed">
-        {method.type === 'upi' && 'Scan the QR or copy the UPI ID in any UPI app.'}
+        {method.type === 'upi' && 'Copy the UPI ID into any UPI app to send.'}
         {method.type === 'zelle' && 'Send via Zelle in your banking app to the number above.'}
         {method.type === 'venmo' && 'Search this username in the Venmo app to send.'}
       </p>

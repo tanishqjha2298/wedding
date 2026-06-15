@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Gift } from 'lucide-react';
 import { site } from './config';
 import Hero from './components/Hero';
 import Timeline from './components/Timeline';
@@ -8,6 +8,7 @@ import Venue from './components/Venue';
 import Gallery from './components/Gallery';
 import RsvpForm from './components/RsvpForm';
 import AdminDashboard from './components/AdminDashboard';
+import Gifts from './components/Gifts';
 import coupleImg from './assets/images/couple.jpg';
 import proposalImg from './assets/images/proposal.jpg';
 
@@ -19,6 +20,13 @@ export default function App() {
   const [isManageView, setIsManageView] = useState(
     typeof window !== 'undefined' && window.location.hash === '#manage',
   );
+
+  // The gifts & blessings page lives at /gifts (visible to everyone).
+  const [isGiftsView, setIsGiftsView] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+    return path === '/gifts' || window.location.hash === '#gifts';
+  });
 
   useEffect(() => {
     // Friends unlock via a clean path (/friends, /crew) or query (?invite=friends,
@@ -41,7 +49,10 @@ export default function App() {
     }
     setIsFriendsAuthorized(friendsFromUrl || remembered);
 
-    const onHashChange = () => setIsManageView(window.location.hash === '#manage');
+    const onHashChange = () => {
+      setIsManageView(window.location.hash === '#manage');
+      setIsGiftsView(window.location.hash === '#gifts');
+    };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
@@ -49,6 +60,11 @@ export default function App() {
   const handleScrollToRsvp = () => {
     document.getElementById('rsvp-section')?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // ── Gifts & Blessings (public) ──────────────────────────────────────────
+  if (isGiftsView) {
+    return <Gifts />;
+  }
 
   // ── Host console (private) ──────────────────────────────────────────────
   if (isManageView) {
@@ -139,6 +155,15 @@ export default function App() {
           <div className="font-serif italic text-3xl sm:text-4xl text-white tracking-wide opacity-95">
             {site.couple.bride} &amp; {site.couple.groom}
           </div>
+
+          <a
+            href="/gifts"
+            className="inline-flex items-center gap-2 bg-sand-gold/15 hover:bg-sand-gold/25 text-sand-gold-light border border-sand-gold/40 text-xs font-sans font-bold uppercase tracking-widest px-6 py-3 rounded-full transition-all"
+          >
+            <Gift className="w-4 h-4" />
+            Gifts &amp; Blessings
+          </a>
+
           <div className="w-16 h-px bg-sand-gold/40 mx-auto" />
           <p className="text-[10px] sm:text-[11px] font-sans tracking-[0.25em] uppercase text-sand-gold-light/80 leading-relaxed font-semibold">
             With Love • {site.venue.city} • {site.dateLabel}

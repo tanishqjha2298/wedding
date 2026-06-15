@@ -14,8 +14,23 @@ import coupleImg from './assets/images/couple.jpg';
 import proposalImg from './assets/images/proposal.jpg';
 
 export default function App() {
-  // Friends-only events are revealed via a private link (?invite=friends or ?crew=true).
-  const [isFriendsAuthorized, setIsFriendsAuthorized] = useState(false);
+  // Friends-only events are revealed via a private link (?invite=friends or ?crew=true),
+  // then remembered for the browser session. Computed synchronously to avoid a flash.
+  const [isFriendsAuthorized, setIsFriendsAuthorized] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const params = new URLSearchParams(window.location.search);
+    const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+    const fromUrl =
+      params.get('crew') === 'true' ||
+      params.get('invite') === 'friends' ||
+      path === '/friends' ||
+      path === '/crew';
+    try {
+      return fromUrl || sessionStorage.getItem('friendsAuthorized') === 'true';
+    } catch {
+      return fromUrl;
+    }
+  });
 
   // The host RSVP console lives at #manage, hidden from regular guests.
   const [isManageView, setIsManageView] = useState(
@@ -64,7 +79,7 @@ export default function App() {
 
   // ── Gifts & Blessings (public) ──────────────────────────────────────────
   if (isGiftsView) {
-    return <Gifts />;
+    return <Gifts isFriendsAuthorized={isFriendsAuthorized} />;
   }
 
   // ── Host console (private) ──────────────────────────────────────────────

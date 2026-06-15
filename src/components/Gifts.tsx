@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, Heart, Copy, Check, ExternalLink, Plane, Gift, Sparkles } from 'lucide-react';
+import { ArrowLeft, Heart, Copy, Check, ExternalLink, Plane, Gift, Sparkles, Coins } from 'lucide-react';
 import { gifts, site, type PayMethod, type WishlistItem } from '../config';
 
 /** Copy-to-clipboard pill showing the handle with a copy affordance. */
@@ -137,10 +137,19 @@ function SectionHeading({ icon, kicker, title }: { icon: React.ReactNode; kicker
   );
 }
 
-export default function Gifts() {
+export default function Gifts({ isFriendsAuthorized = false }: { isFriendsAuthorized?: boolean }) {
   const { wishlist, honeymoon } = gifts;
   const wishItems = wishlist.items.filter(Boolean);
   const payMethods = honeymoon.methods.filter((m) => m.enabled);
+
+  // Friends see the casual "Honeymoon Fund"; family/general guests see "Shagun".
+  const fundHeading = isFriendsAuthorized ? honeymoon.headingFriends : honeymoon.heading;
+  const fundKicker = isFriendsAuthorized ? honeymoon.kickerFriends : honeymoon.kicker;
+  const fundIcon = isFriendsAuthorized ? (
+    <Plane className="w-5 h-5 stroke-[1.5]" />
+  ) : (
+    <Coins className="w-5 h-5 stroke-[1.5]" />
+  );
 
   return (
     <div className="relative min-h-screen bg-cream text-stone-dark font-sans antialiased bg-jaali-rose">
@@ -207,7 +216,7 @@ export default function Gifts() {
         {/* Honeymoon fund */}
         {honeymoon.enabled && payMethods.length > 0 && (
           <section className="mb-12">
-            <SectionHeading icon={<Plane className="w-5 h-5 stroke-[1.5]" />} kicker="Sponsor Our Honeymoon!" title={honeymoon.heading} />
+            <SectionHeading icon={fundIcon} kicker={fundKicker} title={fundHeading} />
             {honeymoon.blurb && (
               <p className="text-center text-sm font-sans font-light text-stone-dark/85 leading-relaxed max-w-xl mx-auto mb-8">
                 {honeymoon.blurb}

@@ -62,7 +62,15 @@ export interface PayMethod {
 export const gifts: {
   intro: string;
   wishlist: { enabled: boolean; heading: string; blurb: string; items: WishlistItem[] };
-  honeymoon: { enabled: boolean; heading: string; blurb: string; methods: PayMethod[] };
+  honeymoon: {
+    enabled: boolean;
+    heading: string;        // shown to family / general guests
+    headingFriends: string; // shown on the private friends link
+    kicker: string;
+    kickerFriends: string;
+    blurb: string;
+    methods: PayMethod[];
+  };
 } = {
   intro:
     "Truly — having you celebrate with us in Bikaner means the world. But if you'd like to bless us as we begin this new chapter, here are a few ways to do so.",
@@ -88,7 +96,10 @@ export const gifts: {
 
   honeymoon: {
     enabled: true,
-    heading: 'Honeymoon Fund',
+    heading: 'Shagun',
+    headingFriends: 'Honeymoon Fund',
+    kicker: 'With Your Blessings',
+    kickerFriends: 'Sponsor Our Honeymoon!',
     blurb: '',
     // TODO: replace placeholder handles with your real ones.
     methods: [

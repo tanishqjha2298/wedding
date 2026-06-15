@@ -65,7 +65,7 @@ export const gifts: {
   wishlist: {
     enabled: true,
     heading: 'Our Wishlist',
-    blurb: 'A few things we’re dreaming of for our first home together.',
+    blurb: 'A few things on our wishlist as we start this new adventure together.',
     // TODO: replace these samples with your curated list.
     items: [
       {

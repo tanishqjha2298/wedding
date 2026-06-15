@@ -92,8 +92,7 @@ export const gifts: {
   honeymoon: {
     enabled: true,
     heading: 'Honeymoon Fund',
-    blurb:
-      'From a rooftop in New York to a palace in Bikaner — help us write the next chapter. Sponsor our honeymoon adventures!',
+    blurb: '',
     // TODO: replace placeholder handles with your real ones.
     methods: [
       {

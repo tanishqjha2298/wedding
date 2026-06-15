@@ -190,9 +190,11 @@ export default function Gifts() {
         {honeymoon.enabled && payMethods.length > 0 && (
           <section className="mb-12">
             <SectionHeading icon={<Plane className="w-5 h-5 stroke-[1.5]" />} kicker="Sponsor Our Honeymoon!" title={honeymoon.heading} />
-            <p className="text-center text-sm font-sans font-light text-stone-dark/85 leading-relaxed max-w-xl mx-auto mb-8">
-              {honeymoon.blurb}
-            </p>
+            {honeymoon.blurb && (
+              <p className="text-center text-sm font-sans font-light text-stone-dark/85 leading-relaxed max-w-xl mx-auto mb-8">
+                {honeymoon.blurb}
+              </p>
+            )}
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
               {payMethods.map((method) => (
                 <PayCard key={method.type} method={method} />

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, Heart, Copy, Check, ExternalLink, Plane, Gift } from 'lucide-react';
+import { ArrowLeft, Heart, Copy, Check, ExternalLink, Plane, Gift, Sparkles } from 'lucide-react';
 import { gifts, site, type PayMethod, type WishlistItem } from '../config';
 
 /** Copy-to-clipboard pill showing the handle with a copy affordance. */
@@ -67,6 +67,24 @@ function PayCard({ method }: { method: PayMethod }) {
 }
 
 function ItemCard({ item }: { item: WishlistItem }) {
+  if (item.placeholder) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="border-2 border-dashed border-stone-warm rounded-2xl p-6 flex flex-col items-center justify-center text-center min-h-[150px]"
+      >
+        <Sparkles className="w-6 h-6 text-sand-gold mb-3" />
+        <h3 className="font-display text-base font-semibold text-stone-dark leading-snug">{item.name}</h3>
+        {item.note && (
+          <p className="mt-1.5 text-sm font-sans font-light text-stone-muted leading-relaxed">{item.note}</p>
+        )}
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}

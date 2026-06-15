@@ -40,6 +40,7 @@ export interface WishlistItem {
   price?: string;  // free text, e.g. '$350' or '₹5,000'
   link?: string;   // where to buy / view (optional)
   image?: string;  // image URL (optional)
+  placeholder?: boolean; // renders as a muted "coming soon" teaser card
 }
 
 export type PayType = 'upi' | 'zelle' | 'venmo';
@@ -66,25 +67,20 @@ export const gifts: {
     enabled: true,
     heading: 'Our Wishlist',
     blurb: 'A few things on our wishlist as we start this new adventure together.',
-    // TODO: replace these samples with your curated list.
+    // Add real prices/links/images anytime — all fields except name are optional.
     items: [
-      {
-        name: 'Le Creuset Dutch Oven',
-        note: 'For our first home-cooked meals together',
-        price: '$350',
-        link: '',
-      },
       {
         name: 'Espresso Machine',
         note: 'Slow mornings, just the two of us',
-        price: '$600',
-        link: '',
       },
       {
-        name: 'Handwoven Throw Blanket',
-        note: 'Cozy evenings in',
-        price: '$120',
-        link: '',
+        name: 'Bedding Set',
+        note: 'Soft layers for cozy nights',
+      },
+      {
+        name: 'More coming soon',
+        note: 'We’re still curating our list — check back as the day draws closer!',
+        placeholder: true,
       },
     ],
   },

@@ -28,6 +28,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Leave room for the fixed nav when jumping to in-page sections */
+section[id] {
+  scroll-margin-top: 4.5rem;
+}
+
 body {
   background-color: #fcfbfa; /* Luxury warm cream */
   color: #2b2823;            /* Noble charcoal */

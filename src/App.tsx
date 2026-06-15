@@ -9,6 +9,7 @@ import Gallery from './components/Gallery';
 import RsvpForm from './components/RsvpForm';
 import AdminDashboard from './components/AdminDashboard';
 import Gifts from './components/Gifts';
+import Nav from './components/Nav';
 import coupleImg from './assets/images/couple.jpg';
 import proposalImg from './assets/images/proposal.jpg';
 
@@ -88,6 +89,8 @@ export default function App() {
   // ── Guest invitation ────────────────────────────────────────────────────
   return (
     <div className="relative min-h-screen bg-cream text-stone-dark font-sans antialiased selection:bg-clay-rose selection:text-white">
+      <Nav />
+
       <Hero onScrollToRsvp={handleScrollToRsvp} isFriendsAuthorized={isFriendsAuthorized} />
 
       {/* The couple — engagement photo paired with the verse */}

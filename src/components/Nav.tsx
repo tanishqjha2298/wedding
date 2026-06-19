@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Gift } from 'lucide-react';
 import { site } from '../config';
 
-export default function Nav() {
+export default function Nav({ giftsHref = '/gifts' }: { giftsHref?: string }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function Nav() {
             <a href="#venue" onClick={(e) => toSection(e, 'venue')} className={anchorClass}>Travel</a>
             <a href="#rsvp-section" onClick={(e) => toSection(e, 'rsvp-section')} className={anchorClass}>RSVP</a>
             <a
-              href="/gifts"
+              href={giftsHref}
               className="inline-flex items-center gap-1.5 bg-clay-rose text-white text-[11px] uppercase tracking-[0.12em] font-sans font-bold px-4 py-2 rounded-full hover:bg-clay-dark transition-all shadow-sm shrink-0"
             >
               <Gift className="w-3.5 h-3.5 shrink-0" />

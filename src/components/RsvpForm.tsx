@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, Music, User, UserPlus, X, ThumbsUp, Send, Loader2, Heart } from 'lucide-react';
 import { RsvpFormState, AttendanceOption, GuestSide } from '../types';
@@ -38,6 +38,18 @@ export default function RsvpForm({ isFriendsAuthorized }: RsvpFormProps) {
     selectedEvents: { haldi: true, sangeet: true, wedding: true, friendshang: isFriendsAuthorized },
     songRequest: '',
   });
+
+  // If friend status resolves after mount (e.g. storage read), make sure the
+  // friends-only event becomes pre-selected rather than staying stale.
+  useEffect(() => {
+    if (isFriendsAuthorized) {
+      setFormData((prev) =>
+        prev.selectedEvents.friendshang
+          ? prev
+          : { ...prev, selectedEvents: { ...prev.selectedEvents, friendshang: true } },
+      );
+    }
+  }, [isFriendsAuthorized]);
 
   const [errors, setErrors] = useState<{ fullName?: string; side?: string; attendance?: string }>({});
   const [isSubmitted, setIsSubmitted] = useState(false);

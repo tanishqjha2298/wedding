@@ -26,7 +26,7 @@ export default function App() {
       path === '/friends' ||
       path === '/crew';
     try {
-      return fromUrl || sessionStorage.getItem('friendsAuthorized') === 'true';
+      return fromUrl || localStorage.getItem('friendsAuthorized') === 'true';
     } catch {
       return fromUrl;
     }
@@ -58,10 +58,13 @@ export default function App() {
 
     let remembered = false;
     try {
-      if (friendsFromUrl) sessionStorage.setItem('friendsAuthorized', 'true');
-      remembered = sessionStorage.getItem('friendsAuthorized') === 'true';
+      // localStorage persists across tabs and full-page navigations (including
+      // the in-app browsers used by WhatsApp/Instagram), so a friend who opens
+      // the private link stays unlocked when they move between pages.
+      if (friendsFromUrl) localStorage.setItem('friendsAuthorized', 'true');
+      remembered = localStorage.getItem('friendsAuthorized') === 'true';
     } catch {
-      // sessionStorage may be unavailable (private mode) — fall back to URL only
+      // storage may be unavailable (private mode) — fall back to URL only
     }
     setIsFriendsAuthorized(friendsFromUrl || remembered);
 
@@ -76,6 +79,10 @@ export default function App() {
   const handleScrollToRsvp = () => {
     document.getElementById('rsvp-section')?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Carry the friends flag through full-page navigations via the URL itself, so
+  // friend status survives even if storage is wiped (belt-and-suspenders).
+  const giftsHref = isFriendsAuthorized ? '/gifts?invite=friends' : '/gifts';
 
   // ── Gifts & Blessings (public) ──────────────────────────────────────────
   if (isGiftsView) {
@@ -104,7 +111,7 @@ export default function App() {
   // ── Guest invitation ────────────────────────────────────────────────────
   return (
     <div className="relative min-h-screen bg-cream text-stone-dark font-sans antialiased selection:bg-clay-rose selection:text-white">
-      <Nav />
+      <Nav giftsHref={giftsHref} />
 
       <Hero onScrollToRsvp={handleScrollToRsvp} isFriendsAuthorized={isFriendsAuthorized} />
 
@@ -175,7 +182,7 @@ export default function App() {
           </div>
 
           <a
-            href="/gifts"
+            href={giftsHref}
             className="inline-flex items-center gap-2 bg-sand-gold/15 hover:bg-sand-gold/25 text-sand-gold-light border border-sand-gold/40 text-xs font-sans font-bold uppercase tracking-widest px-6 py-3 rounded-full transition-all"
           >
             <Gift className="w-4 h-4" />

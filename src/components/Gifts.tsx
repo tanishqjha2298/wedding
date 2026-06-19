@@ -153,10 +153,10 @@ export default function Gifts({ isFriendsAuthorized = false }: { isFriendsAuthor
 
   return (
     <div className="relative min-h-screen bg-cream text-stone-dark font-sans antialiased bg-jaali-rose">
-      {/* Back link */}
+      {/* Back link — keep friends unlocked when returning to the invitation */}
       <div className="max-w-5xl mx-auto px-4 pt-6">
         <a
-          href="/"
+          href={isFriendsAuthorized ? '/?invite=friends' : '/'}
           className="inline-flex items-center gap-1.5 text-xs font-sans font-semibold uppercase tracking-wider text-stone-muted hover:text-clay-rose transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />

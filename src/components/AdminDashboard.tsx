@@ -11,6 +11,7 @@ import {
   signInWithGoogle, logFirestoreError, OperationType,
 } from '../firebase';
 import { RsvpFormState, GuestSide } from '../types';
+import { weddingEvents } from '../data/events';
 import { site } from '../config';
 
 interface FirebaseRsvp extends RsvpFormState {
@@ -443,11 +444,11 @@ export default function AdminDashboard() {
                             <span className="text-stone-muted font-light text-xs italic">N/A</span>
                           ) : (
                             <div className="flex flex-wrap gap-1.5">
-                              {Object.entries(rsvp.selectedEvents)
-                                .filter(([, attending]) => attending)
-                                .map(([key]) => (
-                                  <span key={key} className="px-1.5 py-0.5 rounded bg-orange-50 text-clay-rose border border-clay-rose/15 text-[9px] font-sans font-semibold">
-                                    {eventNameMap[key] || key}
+                              {weddingEvents
+                                .filter((event) => rsvp.selectedEvents[event.id])
+                                .map((event) => (
+                                  <span key={event.id} className="px-1.5 py-0.5 rounded bg-orange-50 text-clay-rose border border-clay-rose/15 text-[9px] font-sans font-semibold">
+                                    {eventNameMap[event.id] || event.name}
                                   </span>
                                 ))}
                               {Object.values(rsvp.selectedEvents).filter(Boolean).length === 0 && (

@@ -44,13 +44,19 @@ export default function App() {
     return path === '/gifts' || window.location.hash === '#gifts';
   });
 
-  // The bride's-side link (/ladkiwale) shows the invitation with no Gifts &
-  // Blessings section. Detected from the URL only (no internal navigation in
-  // this mode leads off the page, so nothing to persist).
-  const hideGifts =
-    typeof window !== 'undefined' &&
-    (window.location.pathname.replace(/\/+$/, '').toLowerCase() === '/ladkiwale' ||
-      new URLSearchParams(window.location.search).get('side') === 'ladkiwale');
+  // Audience-specific variants, detected from the URL:
+  //  • /ladkiwale (bride's side)  → no Gifts & Blessings section at all
+  //  • /ladkewale (groom's side)  → gifts page shown, but no wishlist (Shagun only)
+  const side = (() => {
+    if (typeof window === 'undefined') return null;
+    const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+    const q = new URLSearchParams(window.location.search).get('side');
+    if (path === '/ladkiwale' || q === 'ladkiwale') return 'ladkiwale';
+    if (path === '/ladkewale' || q === 'ladkewale') return 'ladkewale';
+    return null;
+  })();
+  const hideGifts = side === 'ladkiwale';
+  const hideWishlist = side === 'ladkewale';
 
   useEffect(() => {
     // Friends unlock via a clean path (/friends, /crew) or query (?invite=friends,
@@ -88,17 +94,29 @@ export default function App() {
     document.getElementById('rsvp-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Carry the friends flag through full-page navigations via the URL itself, so
-  // friend status survives even if storage is wiped (belt-and-suspenders).
-  const giftsHref = isFriendsAuthorized ? '/gifts?invite=friends' : '/gifts';
+  // Carry the active variant through full-page navigations via the URL itself,
+  // so the mode survives even if storage is wiped (belt-and-suspenders).
+  const giftsHref = hideWishlist
+    ? '/gifts?side=ladkewale'
+    : isFriendsAuthorized
+      ? '/gifts?invite=friends'
+      : '/gifts';
 
-  // Keep the bride's-side guest on /ladkiwale when they tap the logo, so the
-  // gifts section can't reappear via a bounce back to the default invitation.
-  const homeHref = hideGifts ? '/ladkiwale' : '/';
+  // Keep variant guests on their link when they tap the logo / go back, so the
+  // tailored view can't be lost via a bounce to the default invitation.
+  const homeHref = side === 'ladkiwale' ? '/ladkiwale' : side === 'ladkewale' ? '/ladkewale' : '/';
+  const giftsBackHref =
+    side === 'ladkewale' ? '/ladkewale' : isFriendsAuthorized ? '/?invite=friends' : '/';
 
   // ── Gifts & Blessings (public) ──────────────────────────────────────────
   if (isGiftsView) {
-    return <Gifts isFriendsAuthorized={isFriendsAuthorized} />;
+    return (
+      <Gifts
+        isFriendsAuthorized={isFriendsAuthorized}
+        hideWishlist={hideWishlist}
+        backHref={giftsBackHref}
+      />
+    );
   }
 
   // ── Host console (private) ──────────────────────────────────────────────

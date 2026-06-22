@@ -137,7 +137,15 @@ function SectionHeading({ icon, kicker, title }: { icon: React.ReactNode; kicker
   );
 }
 
-export default function Gifts({ isFriendsAuthorized = false }: { isFriendsAuthorized?: boolean }) {
+export default function Gifts({
+  isFriendsAuthorized = false,
+  hideWishlist = false,
+  backHref = '/',
+}: {
+  isFriendsAuthorized?: boolean;
+  hideWishlist?: boolean;
+  backHref?: string;
+}) {
   const { wishlist, honeymoon } = gifts;
   const wishItems = wishlist.items.filter(Boolean);
   const payMethods = honeymoon.methods.filter((m) => m.enabled);
@@ -153,10 +161,10 @@ export default function Gifts({ isFriendsAuthorized = false }: { isFriendsAuthor
 
   return (
     <div className="relative min-h-screen bg-cream text-stone-dark font-sans antialiased bg-jaali-rose">
-      {/* Back link — keep friends unlocked when returning to the invitation */}
+      {/* Back link — preserve the active variant when returning to the invitation */}
       <div className="max-w-5xl mx-auto px-4 pt-6">
         <a
-          href={isFriendsAuthorized ? '/?invite=friends' : '/'}
+          href={backHref}
           className="inline-flex items-center gap-1.5 text-xs font-sans font-semibold uppercase tracking-wider text-stone-muted hover:text-clay-rose transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -201,8 +209,8 @@ export default function Gifts({ isFriendsAuthorized = false }: { isFriendsAuthor
           </p>
         </motion.div>
 
-        {/* Wishlist */}
-        {wishlist.enabled && wishItems.length > 0 && (
+        {/* Wishlist (hidden for the groom's-side /ladkewale link) */}
+        {!hideWishlist && wishlist.enabled && wishItems.length > 0 && (
           <section className="mb-16">
             <SectionHeading icon={<Gift className="w-5 h-5 stroke-[1.5]" />} kicker={wishlist.blurb} title={wishlist.heading} />
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

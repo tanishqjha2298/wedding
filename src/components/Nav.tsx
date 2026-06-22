@@ -2,7 +2,15 @@ import { useState, useEffect } from 'react';
 import { Gift } from 'lucide-react';
 import { site } from '../config';
 
-export default function Nav({ giftsHref = '/gifts' }: { giftsHref?: string }) {
+export default function Nav({
+  giftsHref = '/gifts',
+  homeHref = '/',
+  showGifts = true,
+}: {
+  giftsHref?: string;
+  homeHref?: string;
+  showGifts?: boolean;
+}) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -28,7 +36,7 @@ export default function Nav({ giftsHref = '/gifts' }: { giftsHref?: string }) {
     >
       <nav className="bg-cream/95 backdrop-blur-sm border-b border-stone-warm/60 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-          <a href="/" className="font-display text-base font-bold text-clay-rose tracking-wide shrink-0">
+          <a href={homeHref} className="font-display text-base font-bold text-clay-rose tracking-wide shrink-0">
             {site.couple.initials}
           </a>
 
@@ -36,14 +44,16 @@ export default function Nav({ giftsHref = '/gifts' }: { giftsHref?: string }) {
             <a href="#itinerary" onClick={(e) => toSection(e, 'itinerary')} className={anchorClass}>Itinerary</a>
             <a href="#venue" onClick={(e) => toSection(e, 'venue')} className={anchorClass}>Travel</a>
             <a href="#rsvp-section" onClick={(e) => toSection(e, 'rsvp-section')} className={anchorClass}>RSVP</a>
-            <a
-              href={giftsHref}
-              className="inline-flex items-center gap-1.5 bg-clay-rose text-white text-[11px] uppercase tracking-[0.12em] font-sans font-bold px-4 py-2 rounded-full hover:bg-clay-dark transition-all shadow-sm shrink-0"
-            >
-              <Gift className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline">Gifts &amp; Blessings</span>
-              <span className="sm:hidden">Gifts</span>
-            </a>
+            {showGifts && (
+              <a
+                href={giftsHref}
+                className="inline-flex items-center gap-1.5 bg-clay-rose text-white text-[11px] uppercase tracking-[0.12em] font-sans font-bold px-4 py-2 rounded-full hover:bg-clay-dark transition-all shadow-sm shrink-0"
+              >
+                <Gift className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">Gifts &amp; Blessings</span>
+                <span className="sm:hidden">Gifts</span>
+              </a>
+            )}
           </div>
         </div>
       </nav>

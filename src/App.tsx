@@ -44,6 +44,14 @@ export default function App() {
     return path === '/gifts' || window.location.hash === '#gifts';
   });
 
+  // The bride's-side link (/ladkiwale) shows the invitation with no Gifts &
+  // Blessings section. Detected from the URL only (no internal navigation in
+  // this mode leads off the page, so nothing to persist).
+  const hideGifts =
+    typeof window !== 'undefined' &&
+    (window.location.pathname.replace(/\/+$/, '').toLowerCase() === '/ladkiwale' ||
+      new URLSearchParams(window.location.search).get('side') === 'ladkiwale');
+
   useEffect(() => {
     // Friends unlock via a clean path (/friends, /crew) or query (?invite=friends,
     // ?crew=true), then remembered for the rest of the browser session so a
@@ -84,6 +92,10 @@ export default function App() {
   // friend status survives even if storage is wiped (belt-and-suspenders).
   const giftsHref = isFriendsAuthorized ? '/gifts?invite=friends' : '/gifts';
 
+  // Keep the bride's-side guest on /ladkiwale when they tap the logo, so the
+  // gifts section can't reappear via a bounce back to the default invitation.
+  const homeHref = hideGifts ? '/ladkiwale' : '/';
+
   // ── Gifts & Blessings (public) ──────────────────────────────────────────
   if (isGiftsView) {
     return <Gifts isFriendsAuthorized={isFriendsAuthorized} />;
@@ -111,7 +123,7 @@ export default function App() {
   // ── Guest invitation ────────────────────────────────────────────────────
   return (
     <div className="relative min-h-screen bg-cream text-stone-dark font-sans antialiased selection:bg-clay-rose selection:text-white">
-      <Nav giftsHref={giftsHref} />
+      <Nav giftsHref={giftsHref} homeHref={homeHref} showGifts={!hideGifts} />
 
       <Hero onScrollToRsvp={handleScrollToRsvp} isFriendsAuthorized={isFriendsAuthorized} />
 
@@ -181,13 +193,15 @@ export default function App() {
             {site.couple.bride} &amp; {site.couple.groom}
           </div>
 
-          <a
-            href={giftsHref}
-            className="inline-flex items-center gap-2 bg-sand-gold/15 hover:bg-sand-gold/25 text-sand-gold-light border border-sand-gold/40 text-xs font-sans font-bold uppercase tracking-widest px-6 py-3 rounded-full transition-all"
-          >
-            <Gift className="w-4 h-4" />
-            Gifts &amp; Blessings
-          </a>
+          {!hideGifts && (
+            <a
+              href={giftsHref}
+              className="inline-flex items-center gap-2 bg-sand-gold/15 hover:bg-sand-gold/25 text-sand-gold-light border border-sand-gold/40 text-xs font-sans font-bold uppercase tracking-widest px-6 py-3 rounded-full transition-all"
+            >
+              <Gift className="w-4 h-4" />
+              Gifts &amp; Blessings
+            </a>
+          )}
 
           <div className="w-16 h-px bg-sand-gold/40 mx-auto" />
           <p className="text-[10px] sm:text-[11px] font-sans tracking-[0.25em] uppercase text-sand-gold-light/80 leading-relaxed font-semibold">

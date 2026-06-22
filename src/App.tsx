@@ -55,7 +55,9 @@ export default function App() {
     if (path === '/ladkewale' || q === 'ladkewale') return 'ladkewale';
     return null;
   })();
-  const hideGifts = side === 'ladkiwale';
+  // The general/default view shows no gifts. The Gifts & Blessings section
+  // appears only for friends (Honeymoon Fund) and the groom's side (Shagun).
+  const hideGifts = !(isFriendsAuthorized || side === 'ladkewale');
   const hideWishlist = side === 'ladkewale';
 
   useEffect(() => {

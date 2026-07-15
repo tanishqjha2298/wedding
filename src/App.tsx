@@ -33,24 +33,9 @@ export default function App() {
     }
   });
 
-  // Vintage envelope intro — shown once per browser session on the invitation.
-  const [showIntro, setShowIntro] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    try {
-      return sessionStorage.getItem('introSeen') !== 'true';
-    } catch {
-      return true;
-    }
-  });
-
-  const handleIntroOpen = () => {
-    setShowIntro(false);
-    try {
-      sessionStorage.setItem('introSeen', 'true');
-    } catch {
-      // storage unavailable — intro simply shows again next load
-    }
-  };
+  // Vintage envelope intro — shown on every visit (each page load).
+  const [showIntro, setShowIntro] = useState(true);
+  const handleIntroOpen = () => setShowIntro(false);
 
   // The host RSVP console lives at #manage, hidden from regular guests.
   const [isManageView, setIsManageView] = useState(

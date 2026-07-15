@@ -10,6 +10,7 @@ import RsvpForm from './components/RsvpForm';
 import AdminDashboard from './components/AdminDashboard';
 import Gifts from './components/Gifts';
 import Nav from './components/Nav';
+import EnvelopeIntro from './components/EnvelopeIntro';
 import coupleImg from './assets/images/couple.jpg';
 import proposalImg from './assets/images/proposal.jpg';
 
@@ -31,6 +32,25 @@ export default function App() {
       return fromUrl;
     }
   });
+
+  // Vintage envelope intro — shown once per browser session on the invitation.
+  const [showIntro, setShowIntro] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return sessionStorage.getItem('introSeen') !== 'true';
+    } catch {
+      return true;
+    }
+  });
+
+  const handleIntroOpen = () => {
+    setShowIntro(false);
+    try {
+      sessionStorage.setItem('introSeen', 'true');
+    } catch {
+      // storage unavailable — intro simply shows again next load
+    }
+  };
 
   // The host RSVP console lives at #manage, hidden from regular guests.
   const [isManageView, setIsManageView] = useState(
@@ -143,6 +163,8 @@ export default function App() {
   // ── Guest invitation ────────────────────────────────────────────────────
   return (
     <div className="relative min-h-screen bg-cream text-stone-dark font-sans antialiased selection:bg-clay-rose selection:text-white">
+      {showIntro && <EnvelopeIntro onOpen={handleIntroOpen} />}
+
       <Nav giftsHref={giftsHref} homeHref={homeHref} showGifts={!hideGifts} />
 
       <Hero onScrollToRsvp={handleScrollToRsvp} isFriendsAuthorized={isFriendsAuthorized} />

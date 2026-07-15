@@ -33,8 +33,24 @@ export default function App() {
     }
   });
 
-  // Vintage envelope intro — shown on every visit (each page load).
-  const [showIntro, setShowIntro] = useState(true);
+  // Vintage envelope intro — shown on every visit, except when the guest is
+  // returning from the gifts page (so the gifts round-trip doesn't replay it).
+  const [showIntro, setShowIntro] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    try {
+      const ref = document.referrer;
+      if (ref) {
+        const refUrl = new URL(ref);
+        const cameFromGifts =
+          refUrl.origin === window.location.origin &&
+          refUrl.pathname.replace(/\/+$/, '').toLowerCase() === '/gifts';
+        if (cameFromGifts) return false;
+      }
+    } catch {
+      // malformed/absent referrer — fall through and show the intro
+    }
+    return true;
+  });
   const handleIntroOpen = () => setShowIntro(false);
 
   // The host RSVP console lives at #manage, hidden from regular guests.

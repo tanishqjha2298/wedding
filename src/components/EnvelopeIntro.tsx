@@ -27,8 +27,8 @@ export default function EnvelopeIntro({ onOpen }: { onOpen: () => void }) {
   const handleOpen = () => {
     if (opening) return;
     setOpening(true);
-    window.setTimeout(() => setFlapBehind(true), reduce ? 0 : 430);
-    window.setTimeout(onOpen, reduce ? 350 : 2050);
+    window.setTimeout(() => setFlapBehind(true), reduce ? 0 : 620);
+    window.setTimeout(onOpen, reduce ? 350 : 3050);
   };
 
   const onKey = (e: React.KeyboardEvent) => {
@@ -60,7 +60,7 @@ export default function EnvelopeIntro({ onOpen }: { onOpen: () => void }) {
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-9 px-6 bg-cream bg-jaali-rose"
       initial={{ opacity: 1 }}
       animate={{ opacity: opening ? 0 : 1 }}
-      transition={{ duration: t(0.9), delay: opening ? t(1.15) : 0, ease: 'easeInOut' }}
+      transition={{ duration: t(1.3), delay: opening ? t(1.7) : 0, ease: 'easeInOut' }}
       style={{ pointerEvents: opening ? 'none' : 'auto' }}
       aria-hidden={opening}
     >
@@ -91,7 +91,7 @@ export default function EnvelopeIntro({ onOpen }: { onOpen: () => void }) {
           animate={{ opacity: 1, scale: opening ? 2.2 : 1, y: 0 }}
           transition={
             opening
-              ? { duration: t(1.05), delay: t(0.9), ease: [0.42, 0, 0.2, 1] }
+              ? { duration: t(1.5), delay: t(1.4), ease: [0.42, 0, 0.2, 1] }
               : { duration: t(0.7), ease: 'easeOut' }
           }
         >
@@ -120,7 +120,7 @@ export default function EnvelopeIntro({ onOpen }: { onOpen: () => void }) {
             }}
             initial={{ y: 0 }}
             animate={{ y: opening ? -120 : 0 }}
-            transition={{ duration: t(0.75), delay: t(0.32), ease: easeOut }}
+            transition={{ duration: t(1.1), delay: t(0.5), ease: easeOut }}
           >
             <div className="pt-5">
               <p className="font-serif italic text-[11px] text-clay-rose">the wedding of</p>
@@ -158,7 +158,7 @@ export default function EnvelopeIntro({ onOpen }: { onOpen: () => void }) {
               }}
               initial={{ rotateX: 0 }}
               animate={{ rotateX: opening ? 178 : 0 }}
-              transition={{ duration: t(0.65), delay: t(0.1), ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: t(1.0), delay: t(0.15), ease: [0.4, 0, 0.2, 1] }}
             />
           </div>
 
@@ -181,7 +181,7 @@ export default function EnvelopeIntro({ onOpen }: { onOpen: () => void }) {
               opacity: opening ? 0 : 1,
               y: opening ? 'calc(-50% - 10px)' : '-50%',
             }}
-            transition={{ duration: t(0.3), ease: 'easeIn' }}
+            transition={{ duration: t(0.45), ease: 'easeIn' }}
           >
             <span
               className="font-display font-bold text-[15px]"

@@ -26,8 +26,17 @@ export default function App() {
       params.get('invite') === 'friends' ||
       path === '/friends' ||
       path === '/crew';
+    // An explicit side link (bride's/groom's side) is its own audience — never
+    // apply the remembered friend flag there, or friends-only content leaks in.
+    const sideParam = params.get('side');
+    const explicitSide =
+      path === '/ladkiwale' ||
+      path === '/ladkewale' ||
+      sideParam === 'ladkiwale' ||
+      sideParam === 'ladkewale';
     try {
-      return fromUrl || localStorage.getItem('friendsAuthorized') === 'true';
+      const remembered = localStorage.getItem('friendsAuthorized') === 'true';
+      return fromUrl || (remembered && !explicitSide);
     } catch {
       return fromUrl;
     }
@@ -92,6 +101,12 @@ export default function App() {
       params.get('invite') === 'friends' ||
       path === '/friends' ||
       path === '/crew';
+    const sideParam = params.get('side');
+    const explicitSide =
+      path === '/ladkiwale' ||
+      path === '/ladkewale' ||
+      sideParam === 'ladkiwale' ||
+      sideParam === 'ladkewale';
 
     let remembered = false;
     try {
@@ -103,7 +118,9 @@ export default function App() {
     } catch {
       // storage may be unavailable (private mode) — fall back to URL only
     }
-    setIsFriendsAuthorized(friendsFromUrl || remembered);
+    // On an explicit side link, ignore the remembered friend flag so friends-only
+    // content never leaks into the bride's/groom's-side views.
+    setIsFriendsAuthorized(friendsFromUrl || (remembered && !explicitSide));
 
     const onHashChange = () => {
       setIsManageView(window.location.hash === '#manage');

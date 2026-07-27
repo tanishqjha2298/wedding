@@ -34,8 +34,8 @@ export default function Timeline({ isFriendsAuthorized }: TimelineProps) {
       case 'haldi':
         return {
           title: 'Vibe & Attire Dresscode:',
-          attire: 'TBD',
-          tip: 'Theme & dress code to be announced soon — stay tuned!'
+          attire: 'Shades of the sun — marigold, turmeric yellow & warm orange',
+          tip: 'Dress in bright, sunny hues to glow in the morning light — think marigold, saffron, and sunset orange.'
         };
       case 'sangeet':
         return {

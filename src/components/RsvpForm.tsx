@@ -11,7 +11,7 @@ interface RsvpFormProps {
   isFriendsAuthorized: boolean;
 }
 
-const MAX_ADDITIONAL_GUESTS = 2;
+const MAX_ADDITIONAL_GUESTS = 3;
 
 type StepKey = 'names' | 'side' | 'attendance' | 'events' | 'song';
 

@@ -43,7 +43,7 @@ service cloud.firestore {
         && rsvp.selectedEvents is map
         && rsvp.selectedEvents.keys().size() <= 10
         && (!rsvp.keys().hasAny(['songRequest']) || (rsvp.songRequest is string && rsvp.songRequest.size() <= 200))
-        && (!rsvp.keys().hasAny(['additionalGuests']) || (rsvp.additionalGuests is list && rsvp.additionalGuests.size() <= 2))
+        && (!rsvp.keys().hasAny(['additionalGuests']) || (rsvp.additionalGuests is list && rsvp.additionalGuests.size() <= 3))
         && rsvp.createdAt == request.time;
     }
 

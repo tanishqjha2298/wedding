@@ -139,7 +139,7 @@ export default function RsvpForm({ isFriendsAuthorized }: RsvpFormProps) {
 
     if (!isFirebaseConfigured || !db) {
       setSubmitError(
-        'Our RSVP system is being set up — please try again shortly, or reach out to us directly.',
+        'Our RSVP system is being set up. Please try again shortly, or reach out to us directly.',
       );
       return;
     }

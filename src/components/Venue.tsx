@@ -16,17 +16,17 @@ const gettingThere = [
   {
     icon: Plane,
     title: 'By Air',
-    body: 'Nal Airport, Bikaner (BKB) with very limited service — about one flight a day from Delhi — so be sure to book well in advance!',
+    body: 'Nal Airport, Bikaner (BKB) with very limited service, about one flight a day from Delhi, so be sure to book well in advance!',
   },
   {
     icon: TrainFront,
     title: 'By Train',
-    body: 'Bikaner Junction is well connected to Delhi and Jaipur — including overnight and the Bikaner–Delhi superfast services.',
+    body: 'Bikaner Junction is well connected to Delhi and Jaipur, including overnight and the Bikaner-Delhi superfast services.',
   },
   {
     icon: Car,
     title: 'By Road',
-    body: 'Roughly 6 hrs from Jaipur and 8–9 hrs from Delhi across the Thar. Tell us your plans — we can help arrange airport transfers.',
+    body: 'Roughly 6 hrs from Jaipur and 8-9 hrs from Delhi across the Thar. Tell us your plans, and we can help arrange airport transfers.',
   },
 ];
 
@@ -86,7 +86,7 @@ export default function Venue() {
         >
           <img
             src={venueImg}
-            alt="Gaj Kesri, Bikaner — red-sandstone heritage palace"
+            alt="Gaj Kesri, Bikaner, red-sandstone heritage palace"
             className="w-full h-[300px] sm:h-[420px] object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-clay-dark/85 via-clay-dark/15 to-transparent" />
@@ -175,7 +175,7 @@ export default function Venue() {
               <p className="text-xs sm:text-sm font-sans font-light text-stone-dark/85 leading-relaxed">
                 Late November in the Thar means warm, sunlit days (around 25&deg;C) and
                 crisp desert nights (near 10&deg;C). Pack a shawl or jacket for the
-                evening ceremonies — and comfortable shoes for the courtyards.
+                evening ceremonies, and comfortable shoes for the courtyards.
               </p>
               <div className="text-[10px] font-mono uppercase tracking-wider text-sand-gold font-bold inline-flex items-center gap-1 pt-1">
                 <Info className="w-3.5 h-3.5" />

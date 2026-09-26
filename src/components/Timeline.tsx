@@ -34,26 +34,26 @@ export default function Timeline({ isFriendsAuthorized }: TimelineProps) {
       case 'haldi':
         return {
           title: 'Vibe & Attire Dresscode:',
-          attire: 'Shades of the sun — marigold, turmeric yellow & warm orange',
-          tip: 'Dress in bright, sunny hues to glow in the morning light — think marigold, saffron, and sunset orange.'
+          attire: 'Shades of the sun: marigold, turmeric yellow & warm orange',
+          tip: 'Dress in bright, sunny hues to glow in the morning light. Think marigold, saffron, and sunset orange.'
         };
       case 'sangeet':
         return {
           title: 'Vibe & Attire Dresscode:',
-          attire: 'Red-carpet glam — your most dazzling cocktail or Indo-Western looks',
-          tip: 'All glammed up, A-game on. Come camera-ready — a little red-carpet surprise awaits.'
+          attire: 'Red-carpet glam: your most dazzling cocktail or Indo-Western looks',
+          tip: 'All glammed up, A-game on. Come camera-ready, a little red-carpet surprise awaits.'
         };
       case 'wedding':
         return {
           title: 'The Auspicious Vows Attire:',
           attire: 'Come as you please',
-          tip: 'No set dress code for the ceremony — traditional Indian wear is always welcome, but wear whatever makes you feel your best.'
+          tip: 'No set dress code for the ceremony. Traditional Indian wear is always welcome, but wear whatever makes you feel your best.'
         };
       case 'friendshang':
         return {
           title: 'Bonfire Acoustic Attire:',
           attire: 'Casuals, comfy pajamas, relaxed vibes only',
-          tip: 'Desert night winds can get quite chilly — bring something warm to cozy up in.'
+          tip: 'Desert night winds can get quite chilly, so bring something warm to cozy up in.'
         };
       default:
         return null;

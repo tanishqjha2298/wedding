@@ -16,7 +16,7 @@ const slides: Slide[] = [
   { src: facade1, caption: 'The rose-sandstone palace at dusk' },
   { src: facade2, caption: 'A grand approach across sweeping lawns' },
   { src: pool1, caption: 'The poolside sandstone pavilion' },
-  { src: experience3, caption: 'Ghoomar — Rajasthani folk dance' },
+  { src: experience3, caption: 'Ghoomar, Rajasthani folk dance' },
   { src: puppet2, caption: 'Kathputli puppetry in the lamplit courtyard' },
 ];
 

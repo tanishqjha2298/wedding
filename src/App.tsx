@@ -222,7 +222,7 @@ export default function App() {
           >
             <span className="text-clay-rose text-xl">❧ 𑁍 ☙</span>
             <p className="font-serif italic text-2xl md:text-3xl text-clay-dark leading-relaxed">
-              From a rooftop in New York to a palace in Bikaner — come along for
+              From a rooftop in New York to a palace in Bikaner, come along for
               the best chapter yet.
             </p>
             <div className="flex items-center justify-center md:justify-start gap-3.5 text-stone-muted">

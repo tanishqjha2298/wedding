@@ -22,7 +22,7 @@ export const site = {
 
   venue: {
     name: 'Gaj Kesri',
-    fullName: 'Brij Gaj Kesri — A Boutique Luxury Palace',
+    fullName: 'Brij Gaj Kesri, A Boutique Luxury Palace',
     addressLine: 'Bypass Road, Bikaner, Rajasthan 334001, India',
     city: 'Bikaner, Rajasthan, India',
     // Opens Google Maps to the venue (no API key needed).
@@ -73,7 +73,7 @@ export const gifts: {
   };
 } = {
   intro:
-    "Truly — having you celebrate with us in Bikaner means the world. But if you'd like to bless us as we begin this new chapter, here are a few ways to do so.",
+    "Truly, having you celebrate with us in Bikaner means the world. But if you'd like to bless us as we begin this new chapter, here are a few ways to do so.",
 
   wishlist: {
     enabled: true,
@@ -83,12 +83,12 @@ export const gifts: {
     items: [
       {
         name: 'Espresso Machine',
-        note: 'Breville Bambino Plus — slow mornings, just the two of us',
+        note: 'Breville Bambino Plus for slow mornings, just the two of us',
         link: 'https://www.google.com/search?q=Breville+Bambino+Plus+Espresso+Machine',
       },
       {
         name: 'More coming soon',
-        note: 'We’re still curating our list — check back as the day draws closer!',
+        note: 'We’re still curating our list, so check back as the day draws closer!',
         placeholder: true,
       },
     ],

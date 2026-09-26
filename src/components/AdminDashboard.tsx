@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import {
   Users, ShieldAlert, LogIn, LogOut, Search, Filter,
   Calendar, Music, TrendingUp, Settings, Trash2, Loader2,
+  ArrowUp, ArrowDown, ArrowUpDown,
 } from 'lucide-react';
 import { onAuthStateChanged, User as FirebaseUser, signOut } from 'firebase/auth';
 import { collection, onSnapshot, query, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
@@ -31,6 +32,11 @@ const eventNameMap: { [key: string]: string } = {
   friendshang: 'Crew Hang',
 };
 
+type SortKey = 'date' | 'name' | 'side' | 'status' | 'party';
+// Grouping order for side/status sorts.
+const SIDE_RANK: Record<string, number> = { BRIDE: 0, GROOM: 1, BOTH: 2 };
+const STATUS_RANK: Record<string, number> = { YES: 0, VISA: 1, NO: 2 };
+
 export default function AdminDashboard() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [rsvps, setRsvps] = useState<FirebaseRsvp[]>([]);
@@ -38,6 +44,9 @@ export default function AdminDashboard() {
   const [authChecking, setAuthChecking] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAttendance, setFilterAttendance] = useState('all');
+  const [filterSide, setFilterSide] = useState('all');
+  const [sortKey, setSortKey] = useState<SortKey>('date');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [authError, setAuthError] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -167,9 +176,53 @@ export default function AdminDashboard() {
     const matchesSearch =
       partyNames(r).some((n) => n.toLowerCase().includes(q)) ||
       r.songRequest.toLowerCase().includes(q);
-    const matchesFilter = filterAttendance === 'all' || r.attendance === filterAttendance;
-    return matchesSearch && matchesFilter;
+    const matchesAttendance = filterAttendance === 'all' || r.attendance === filterAttendance;
+    const matchesSide = filterSide === 'all' || r.side === filterSide;
+    return matchesSearch && matchesAttendance && matchesSide;
   });
+
+  const sortedRsvps = [...filteredRsvps].sort((a, b) => {
+    let cmp = 0;
+    switch (sortKey) {
+      case 'name':
+        cmp = a.fullName.localeCompare(b.fullName);
+        break;
+      case 'side':
+        cmp = (SIDE_RANK[a.side ?? ''] ?? 9) - (SIDE_RANK[b.side ?? ''] ?? 9);
+        break;
+      case 'status':
+        cmp = (STATUS_RANK[a.attendance ?? ''] ?? 9) - (STATUS_RANK[b.attendance ?? ''] ?? 9);
+        break;
+      case 'party':
+        cmp = partySize(a) - partySize(b);
+        break;
+      case 'date':
+      default:
+        cmp = (a.createdAt?.toMillis() ?? 0) - (b.createdAt?.toMillis() ?? 0);
+        break;
+    }
+    if (cmp === 0) cmp = a.fullName.localeCompare(b.fullName); // stable tiebreak
+    return sortDir === 'asc' ? cmp : -cmp;
+  });
+
+  const filtersActive = searchQuery !== '' || filterAttendance !== 'all' || filterSide !== 'all';
+
+  // Clicking a column header sorts by it; clicking the active one flips direction.
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDir(key === 'date' || key === 'party' ? 'desc' : 'asc');
+    }
+  };
+
+  const sortArrow = (key: SortKey) =>
+    sortKey === key ? (
+      sortDir === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+    ) : (
+      <ArrowUpDown className="w-3 h-3 opacity-30" />
+    );
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 mt-6 mb-16">
@@ -345,42 +398,108 @@ export default function AdminDashboard() {
 
           {/* Registry */}
           <div className="bg-white rounded-2xl border border-stone-warm shadow-sm overflow-hidden">
-            <div className="p-4 sm:p-5 border-b border-stone-warm/60 bg-stone-warm/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="relative w-full sm:max-w-xs shrink-0">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-muted">
-                  <Search className="w-4 h-4" />
-                </span>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search name or song…"
-                  className="bg-white w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-stone-warm outline-none transition-all focus:border-clay-rose focus:ring-1 focus:ring-clay-rose"
-                />
-              </div>
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <Filter className="w-3.5 h-3.5 text-stone-muted shrink-0" />
-                <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-stone-warm">
-                  {[
-                    { id: 'all', label: 'All' },
-                    { id: 'YES', label: 'Yes' },
-                    { id: 'VISA', label: 'Visa' },
-                    { id: 'NO', label: 'No' },
-                  ].map((btn) => (
-                    <button
-                      key={btn.id}
-                      onClick={() => setFilterAttendance(btn.id)}
-                      className={`cursor-pointer px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold tracking-wide transition-all ${
-                        filterAttendance === btn.id
-                          ? 'bg-clay-rose text-white shadow-sm'
-                          : 'text-stone-muted hover:text-stone-dark'
-                      }`}
-                    >
-                      {btn.label}
-                    </button>
-                  ))}
+            <div className="p-4 sm:p-5 border-b border-stone-warm/60 bg-stone-warm/10 space-y-3">
+              {/* Row 1 — search + attendance filter */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div className="relative w-full sm:max-w-xs shrink-0">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-muted">
+                    <Search className="w-4 h-4" />
+                  </span>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search name or song…"
+                    className="bg-white w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-stone-warm outline-none transition-all focus:border-clay-rose focus:ring-1 focus:ring-clay-rose"
+                  />
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto justify-end">
+                  <Filter className="w-3.5 h-3.5 text-stone-muted shrink-0" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-stone-muted shrink-0 hidden sm:inline">Status</span>
+                  <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-stone-warm">
+                    {[
+                      { id: 'all', label: 'All' },
+                      { id: 'YES', label: 'Yes' },
+                      { id: 'VISA', label: 'Visa' },
+                      { id: 'NO', label: 'No' },
+                    ].map((btn) => (
+                      <button
+                        key={btn.id}
+                        onClick={() => setFilterAttendance(btn.id)}
+                        className={`cursor-pointer px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold tracking-wide transition-all ${
+                          filterAttendance === btn.id
+                            ? 'bg-clay-rose text-white shadow-sm'
+                            : 'text-stone-muted hover:text-stone-dark'
+                        }`}
+                      >
+                        {btn.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
+
+              {/* Row 2 — side filter + sort control */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Users className="w-3.5 h-3.5 text-stone-muted shrink-0" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-stone-muted shrink-0">Side</span>
+                  <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-stone-warm">
+                    {[
+                      { id: 'all', label: 'All' },
+                      { id: 'BRIDE', label: `${site.couple.bride}'s` },
+                      { id: 'GROOM', label: `${site.couple.groom}'s` },
+                      { id: 'BOTH', label: 'Both' },
+                    ].map((btn) => (
+                      <button
+                        key={btn.id}
+                        onClick={() => setFilterSide(btn.id)}
+                        className={`cursor-pointer px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold tracking-wide transition-all ${
+                          filterSide === btn.id
+                            ? 'bg-clay-rose text-white shadow-sm'
+                            : 'text-stone-muted hover:text-stone-dark'
+                        }`}
+                      >
+                        {btn.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 justify-end">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-stone-muted shrink-0">Sort</span>
+                  <select
+                    value={sortKey}
+                    onChange={(e) => setSortKey(e.target.value as SortKey)}
+                    className="cursor-pointer bg-white border border-stone-warm rounded-full text-[10px] sm:text-xs font-semibold text-stone-dark px-3 py-1.5 outline-none focus:border-clay-rose"
+                  >
+                    <option value="date">Submitted</option>
+                    <option value="name">Name</option>
+                    <option value="side">Side</option>
+                    <option value="status">Status</option>
+                    <option value="party">Party size</option>
+                  </select>
+                  <button
+                    onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
+                    title={sortDir === 'asc' ? 'Ascending' : 'Descending'}
+                    className="cursor-pointer p-1.5 rounded-full border border-stone-warm bg-white text-stone-muted hover:text-clay-rose transition-colors"
+                  >
+                    {sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Result count */}
+              <p className="text-[10px] font-sans text-stone-muted">
+                Showing <span className="font-semibold text-stone-dark">{sortedRsvps.length}</span> of {rsvps.length} responses
+                {filtersActive && (
+                  <button
+                    onClick={() => { setSearchQuery(''); setFilterAttendance('all'); setFilterSide('all'); }}
+                    className="cursor-pointer ml-2 text-clay-rose font-semibold hover:underline"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </p>
             </div>
 
             {loading ? (
@@ -388,27 +507,43 @@ export default function AdminDashboard() {
                 <div className="w-8 h-8 rounded-full border-2 border-clay-rose/20 border-t-clay-rose animate-spin" />
                 <span className="text-xs font-mono text-stone-muted font-semibold tracking-wider uppercase">Loading…</span>
               </div>
-            ) : filteredRsvps.length === 0 ? (
+            ) : sortedRsvps.length === 0 ? (
               <div className="p-16 text-center text-stone-muted font-sans font-light flex flex-col items-center gap-2">
                 <ShieldAlert className="w-10 h-10 text-stone-warm" />
-                <span>No RSVP entries yet.</span>
+                <span>{filtersActive ? 'No responses match your filters.' : 'No RSVP entries yet.'}</span>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-stone-warm/60 bg-stone-warm/5 text-[10px] sm:text-xs font-bold text-stone-muted uppercase tracking-wider">
-                      <th className="py-4 px-5">Guest / Party</th>
-                      <th className="py-4 px-5">Side</th>
-                      <th className="py-4 px-5">Status</th>
+                      <th className="py-4 px-5">
+                        <button onClick={() => toggleSort('name')} className={`cursor-pointer inline-flex items-center gap-1 uppercase tracking-wider hover:text-clay-rose transition-colors ${sortKey === 'name' ? 'text-clay-rose' : ''}`}>
+                          Guest / Party {sortArrow('name')}
+                        </button>
+                      </th>
+                      <th className="py-4 px-5">
+                        <button onClick={() => toggleSort('side')} className={`cursor-pointer inline-flex items-center gap-1 uppercase tracking-wider hover:text-clay-rose transition-colors ${sortKey === 'side' ? 'text-clay-rose' : ''}`}>
+                          Side {sortArrow('side')}
+                        </button>
+                      </th>
+                      <th className="py-4 px-5">
+                        <button onClick={() => toggleSort('status')} className={`cursor-pointer inline-flex items-center gap-1 uppercase tracking-wider hover:text-clay-rose transition-colors ${sortKey === 'status' ? 'text-clay-rose' : ''}`}>
+                          Status {sortArrow('status')}
+                        </button>
+                      </th>
                       <th className="py-4 px-5">Ceremonies</th>
                       <th className="py-4 px-5">Song Request</th>
-                      <th className="py-4 px-5 text-right">Submitted</th>
+                      <th className="py-4 px-5 text-right">
+                        <button onClick={() => toggleSort('date')} className={`cursor-pointer inline-flex items-center gap-1 uppercase tracking-wider hover:text-clay-rose transition-colors ml-auto ${sortKey === 'date' ? 'text-clay-rose' : ''}`}>
+                          Submitted {sortArrow('date')}
+                        </button>
+                      </th>
                       <th className="py-4 px-5 text-right">Remove</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredRsvps.map((rsvp) => (
+                    {sortedRsvps.map((rsvp) => (
                       <tr key={rsvp.id} className="border-b border-stone-warm/40 last:border-0 hover:bg-stone-warm/10 text-xs sm:text-sm text-stone-dark transition-colors">
                         <td className="py-3.5 px-5">
                           <div className="flex items-center gap-2">

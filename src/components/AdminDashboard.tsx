@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import {
   Users, ShieldAlert, LogIn, LogOut, Search, Filter,
   Calendar, Music, TrendingUp, Settings, Trash2, Loader2,
-  ArrowUp, ArrowDown, ArrowUpDown,
+  ArrowUp, ArrowDown, ArrowUpDown, Gift, Undo2,
 } from 'lucide-react';
 import { onAuthStateChanged, User as FirebaseUser, signOut } from 'firebase/auth';
 import { collection, onSnapshot, query, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
@@ -13,7 +13,13 @@ import {
 } from '../firebase';
 import { RsvpFormState, GuestSide } from '../types';
 import { weddingEvents } from '../data/events';
-import { site } from '../config';
+import { site, gifts } from '../config';
+import { subscribeToClaims, releaseItem, type Claims } from '../registry';
+
+// Every registry item, labelled with its section (e.g. "US Residents").
+const registryItems = gifts.registry.sections.flatMap((s) =>
+  s.items.map((item) => ({ ...item, section: s.title.replace(/^For /, '') })),
+);
 
 interface FirebaseRsvp extends RsvpFormState {
   id: string;
@@ -50,6 +56,8 @@ export default function AdminDashboard() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [giftClaims, setGiftClaims] = useState<Claims>({});
+  const [releasingId, setReleasingId] = useState<string | null>(null);
 
   const isAdmin = Boolean(
     user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase()),
@@ -103,6 +111,28 @@ export default function AdminDashboard() {
       },
     );
   }, [isAdmin]);
+
+  // Gift registry claims (readable by anyone; hosts can release them)
+  useEffect(() => {
+    if (!isAdmin) {
+      setGiftClaims({});
+      return;
+    }
+    return subscribeToClaims(setGiftClaims, () => setGiftClaims({}));
+  }, [isAdmin]);
+
+  const handleRelease = async (id: string, name: string) => {
+    if (!window.confirm(`Make "${name}" available again? Any guest will be able to finalize it.`)) return;
+    setReleasingId(id);
+    try {
+      await releaseItem(id);
+    } catch (e) {
+      logFirestoreError(e, OperationType.DELETE, `registryClaims/${id}`);
+      alert('Could not release this gift. Please try again.');
+    } finally {
+      setReleasingId(null);
+    }
+  };
 
   const handleLogin = async () => {
     setAuthError(null);
@@ -395,6 +425,53 @@ export default function AdminDashboard() {
               ))}
             </div>
           </div>
+
+          {/* Gift registry status */}
+          {registryItems.length > 0 && (
+            <div className="bg-cream-stone/60 border border-stone-warm p-5 sm:p-6 rounded-2xl">
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <h4 className="font-serif italic text-base text-stone-dark flex items-center gap-1.5">
+                  <Gift className="w-4 h-4 text-clay-rose shrink-0" />
+                  Gift Registry
+                </h4>
+                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-stone-muted">
+                  {registryItems.filter((i) => i.id in giftClaims).length} of {registryItems.length} taken
+                </span>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {registryItems.map((item) => {
+                  const taken = item.id in giftClaims;
+                  const at = giftClaims[item.id];
+                  return (
+                    <div key={item.id} className="bg-white p-3.5 rounded-xl border border-stone-warm/50 flex items-center justify-between gap-3 shadow-sm">
+                      <div className="min-w-0">
+                        <p className={`text-xs font-semibold ${taken ? 'line-through text-stone-muted' : 'text-stone-dark'}`}>
+                          {item.name}
+                        </p>
+                        <p className="text-[10px] text-stone-muted mt-0.5">
+                          {item.section} · {item.price}
+                          {taken && at ? ` · taken ${at.toLocaleDateString()}` : ''}
+                        </p>
+                      </div>
+                      {taken ? (
+                        <button
+                          onClick={() => handleRelease(item.id, item.name)}
+                          disabled={releasingId === item.id}
+                          title="Make available again"
+                          className="cursor-pointer shrink-0 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-clay-rose hover:text-white hover:bg-clay-rose border border-clay-rose/30 px-2.5 py-1 rounded-full transition-all disabled:opacity-60"
+                        >
+                          {releasingId === item.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Undo2 className="w-3 h-3" />}
+                          Release
+                        </button>
+                      ) : (
+                        <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-emerald-600">Available</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Registry */}
           <div className="bg-white rounded-2xl border border-stone-warm shadow-sm overflow-hidden">

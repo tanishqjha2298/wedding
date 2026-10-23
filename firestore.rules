@@ -59,5 +59,19 @@ service cloud.firestore {
       allow update: if isHostAdmin() && isValidRsvp(request.resource.data);
       allow delete: if isHostAdmin();
     }
+
+    // 5. Gift registry claims: one doc per finalized item, id = the item's id.
+    // Every guest can see what's taken. A guest can finalize an untaken item
+    // (create only, so the first guest wins); nobody can edit a claim, and
+    // only the hosts can release one.
+    match /registryClaims/{itemId} {
+      allow read: if true;
+      allow create: if isValidId(itemId)
+        && request.resource.data.keys().hasOnly(['itemId', 'claimedAt'])
+        && request.resource.data.itemId == itemId
+        && request.resource.data.claimedAt == request.time;
+      allow update: if false;
+      allow delete: if isHostAdmin();
+    }
   }
 }

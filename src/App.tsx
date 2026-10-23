@@ -75,8 +75,9 @@ export default function App() {
   });
 
   // Audience-specific variants, detected from the URL:
-  //  • /ladkiwale (bride's side)  → no Gifts & Blessings section at all
-  //  • /ladkewale (groom's side)  → gifts page shown, but no wishlist (Shagun only)
+  //  • /ladkiwale (bride's side)  → gift registry only (no Shagun section)
+  //  • /ladkewale (groom's side)  → gift registry + Shagun
+  //  • friends                    → gift registry + Honeymoon Fund
   const side = (() => {
     if (typeof window === 'undefined') return null;
     const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
@@ -85,10 +86,9 @@ export default function App() {
     if (path === '/ladkewale' || q === 'ladkewale') return 'ladkewale';
     return null;
   })();
-  // The general/default view shows no gifts. The Gifts & Blessings section
-  // appears only for friends (Honeymoon Fund) and the groom's side (Shagun).
-  const hideGifts = !(isFriendsAuthorized || side === 'ladkewale');
-  const hideWishlist = side === 'ladkewale';
+  // The general/default view shows no gifts; every audience link does.
+  const hideGifts = !(isFriendsAuthorized || side !== null);
+  const showFund = side !== 'ladkiwale';
 
   useEffect(() => {
     // Friends unlock via a clean path (/friends, /crew) or query (?invite=friends,
@@ -136,24 +136,23 @@ export default function App() {
 
   // Carry the active variant through full-page navigations via the URL itself,
   // so the mode survives even if storage is wiped (belt-and-suspenders).
-  const giftsHref = hideWishlist
-    ? '/gifts?side=ladkewale'
+  const giftsHref = side
+    ? `/gifts?side=${side}`
     : isFriendsAuthorized
       ? '/gifts?invite=friends'
       : '/gifts';
 
   // Keep variant guests on their link when they tap the logo / go back, so the
   // tailored view can't be lost via a bounce to the default invitation.
-  const homeHref = side === 'ladkiwale' ? '/ladkiwale' : side === 'ladkewale' ? '/ladkewale' : '/';
-  const giftsBackHref =
-    side === 'ladkewale' ? '/ladkewale' : isFriendsAuthorized ? '/?invite=friends' : '/';
+  const homeHref = side ? `/${side}` : '/';
+  const giftsBackHref = side ? `/${side}` : isFriendsAuthorized ? '/?invite=friends' : '/';
 
   // ── Gifts & Blessings (public) ──────────────────────────────────────────
   if (isGiftsView) {
     return (
       <Gifts
         isFriendsAuthorized={isFriendsAuthorized}
-        hideWishlist={hideWishlist}
+        showFund={showFund}
         backHref={giftsBackHref}
       />
     );

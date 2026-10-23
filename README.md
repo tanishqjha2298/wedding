@@ -93,6 +93,14 @@ Almost everything you'll want to change lives in two files:
 - [`src/config.ts`](./src/config.ts) — names, dates, RSVP deadline, venue details, map link.
 - [`src/data/events.ts`](./src/data/events.ts) — the itinerary (events, times, descriptions).
 
+### Gift registry
+Registry items live in `gifts.registry.sections` in [`src/config.ts`](./src/config.ts),
+one section per country. Each item needs a unique `id`. When a guest finalizes a
+gift, it's saved in Firestore under `registryClaims/{id}` and shows as taken for
+everyone, so never rename an `id` once guests can see it. Add a photo by setting
+`image` (otherwise an icon is shown). Hosts can release a finalized gift from the
+**Gift Registry** panel in `#manage`.
+
 ### Photos
 The real venue photo is `src/assets/images/gaj_kesari.webp`. To add more (couple
 photos, the pool/courtyard, evening shots), drop the files into

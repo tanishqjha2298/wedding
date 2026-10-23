@@ -32,15 +32,29 @@ export const site = {
 } as const;
 
 // ── Gifts & Blessings page ──────────────────────────────────────────────────
-// Edit your curated wishlist and honeymoon-fund payment handles here.
+// Edit your gift registry and honeymoon-fund payment handles here.
 
-export interface WishlistItem {
+export type RegistryIcon = 'calendar' | 'coffee' | 'alarm' | 'backpack' | 'luggage' | 'gift';
+
+export interface RegistryItem {
+  // Stable key that guests' "finalized" claims are stored under in Firestore.
+  // Never change an id once guests can see the item, or its claim is lost.
+  id: string;
   name: string;
-  note?: string;   // a short line about why you'd love it
-  price?: string;  // free text, e.g. '$350' or '₹5,000'
-  link?: string;   // where to buy / view (optional)
-  image?: string;  // image URL (optional)
-  placeholder?: boolean; // renders as a muted "coming soon" teaser card
+  note?: string;      // short descriptor shown under the name
+  price: string;      // as displayed, e.g. '$169.99' or '₹7,499'
+  store: string;      // shown on the buy link, e.g. 'Amazon'
+  link: string;
+  image?: string;     // product photo; falls back to an icon tile when absent
+  icon?: RegistryIcon;
+}
+
+export interface RegistrySection {
+  id: string;
+  title: string;
+  kicker: string;
+  items: RegistryItem[];
+  comingSoon?: string; // optional "more to come" teaser card after the items
 }
 
 export type PayType = 'upi' | 'zelle' | 'venmo';
@@ -61,7 +75,7 @@ export interface PayMethod {
 
 export const gifts: {
   intro: string;
-  wishlist: { enabled: boolean; heading: string; blurb: string; items: WishlistItem[] };
+  registry: { enabled: boolean; heading: string; kicker: string; sections: RegistrySection[] };
   honeymoon: {
     enabled: boolean;
     heading: string;        // shown to family / general guests
@@ -75,21 +89,71 @@ export const gifts: {
   intro:
     "Truly, having you celebrate with us in Bikaner means the world. But if you'd like to bless us as we begin this new chapter, here are a few ways to do so.",
 
-  wishlist: {
+  registry: {
     enabled: true,
-    heading: 'Our Wishlist',
-    blurb: 'A few things on our wishlist as we start this new adventure together.',
-    // Add real prices/links/images anytime — all fields except name are optional.
-    items: [
+    heading: 'Gift Registry',
+    kicker: 'Pick something from the list for where you live',
+    // Prices are approximate (looked up Oct 2026) and vary with sales.
+    sections: [
       {
-        name: 'Espresso Machine',
-        note: 'Breville Bambino Plus for slow mornings, just the two of us',
-        link: 'https://www.google.com/search?q=Breville+Bambino+Plus+Espresso+Machine',
+        id: 'us',
+        title: 'For US Residents',
+        kicker: 'Ships within the US',
+        items: [
+          {
+            id: 'us-skylight-calendar-15',
+            name: 'Skylight Calendar 15"',
+            note: 'Touchscreen digital calendar & chore chart',
+            price: '$319.99',
+            store: 'Amazon',
+            link: 'https://www.amazon.com/dp/B0C9V811L6',
+            icon: 'calendar',
+          },
+          {
+            id: 'us-breville-barista-express',
+            name: 'Breville Barista Express',
+            note: 'Espresso machine with a built-in grinder',
+            price: '$699.95',
+            store: 'Amazon',
+            link: 'https://www.amazon.com/dp/B00CH9QWOU',
+            icon: 'coffee',
+          },
+          {
+            id: 'us-hatch-restore-3',
+            name: 'Hatch Restore 3',
+            note: 'Sunrise alarm clock & sound machine',
+            price: '$169.99',
+            store: 'Amazon',
+            link: 'https://www.amazon.com/dp/B0DLLSCVZW',
+            icon: 'alarm',
+          },
+          {
+            id: 'us-away-featherlight-backpack-large',
+            name: 'Away Large Featherlight Backpack',
+            note: 'In Amaro Brown',
+            price: '$118',
+            store: 'Away',
+            link: 'https://www.awaytravel.com/products/featherlight-backpack-large-amaro-brown',
+            icon: 'backpack',
+          },
+        ],
       },
       {
-        name: 'More coming soon',
-        note: 'We’re still curating our list, so check back as the day draws closer!',
-        placeholder: true,
+        id: 'india',
+        title: 'For Indian Residents',
+        kicker: 'Ships within India',
+        items: [
+          {
+            id: 'in-mokobara-em-cabin-pro',
+            name: 'Mokobara Em Cabin Pro',
+            note: 'Expandable 8-wheel cabin suitcase',
+            price: '₹7,499',
+            store: 'Mokobara',
+            link: 'https://mokobara.com/products/the-em-cabin-pro',
+            icon: 'luggage',
+          },
+        ],
+        comingSoon: 'We’ll be adding a few more, so check back as the day draws closer!',
       },
     ],
   },

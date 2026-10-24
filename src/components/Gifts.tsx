@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowLeft, Heart, Copy, Check, ExternalLink, Plane, Gift, Sparkles, Coins,
-  CalendarDays, Coffee, AlarmClock, Backpack, Luggage, CircleCheck, Loader2, X,
+  CalendarDays, Coffee, AlarmClock, Backpack, Luggage, ImageIcon, CircleCheck, Loader2, X,
 } from 'lucide-react';
 import {
   gifts, site,
@@ -83,6 +83,7 @@ const ICONS: Record<RegistryIcon, typeof Gift> = {
   alarm: AlarmClock,
   backpack: Backpack,
   luggage: Luggage,
+  frame: ImageIcon,
   gift: Gift,
 };
 
@@ -99,14 +100,13 @@ function ProductVisual({ item, muted, compact = false }: { item: RegistryItem; m
       }`}
     >
       {showPhoto ? (
+        // Photos are pre-framed at 4:3 with breathing room, so they fill edge to edge.
         <img
           src={item.image}
           alt={item.name}
           loading="lazy"
           onError={() => setFailed(true)}
-          className={`w-full h-full object-contain ${compact ? 'p-1.5' : 'p-5'} transition-all duration-500 ${
-            muted ? 'grayscale opacity-45' : ''
-          }`}
+          className={`w-full h-full object-cover transition-all duration-500 ${muted ? 'grayscale opacity-45' : ''}`}
         />
       ) : (
         <div className={`w-full h-full flex items-center justify-center transition-opacity duration-500 ${muted ? 'opacity-40' : ''}`}>
@@ -167,13 +167,15 @@ function RegistryCard({
           >
             {item.name}
           </h3>
-          <span
-            className={`shrink-0 text-xs font-mono font-bold ${
-              taken ? 'line-through text-stone-muted' : 'text-sand-gold'
-            }`}
-          >
-            {item.price}
-          </span>
+          {item.price && (
+            <span
+              className={`shrink-0 text-xs font-mono font-bold ${
+                taken ? 'line-through text-stone-muted' : 'text-sand-gold'
+              }`}
+            >
+              {item.price}
+            </span>
+          )}
         </div>
         {item.note && (
           <p className={`mt-1 text-sm font-sans font-light leading-relaxed ${taken ? 'text-stone-muted/80' : 'text-stone-dark/80'}`}>
@@ -337,7 +339,11 @@ function FinalizeDialog({
           <div className="min-w-0">
             <p className="font-display text-base font-semibold text-stone-dark leading-snug">{item.name}</p>
             <p className="text-xs font-mono font-bold text-sand-gold mt-0.5">
-              {item.price} <span className="font-sans font-normal text-stone-muted">· {item.store}</span>
+              {item.price && <>{item.price} </>}
+              <span className="font-sans font-normal text-stone-muted">
+                {item.price ? '· ' : ''}
+                {item.store}
+              </span>
             </p>
           </div>
         </div>

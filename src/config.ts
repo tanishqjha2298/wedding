@@ -3,6 +3,13 @@
  * Tweak names, dates, venue and links here — everything else reads from this.
  */
 
+import skylightImg from './assets/images/gifts/skylight-calendar-15.webp';
+import brevilleImg from './assets/images/gifts/breville-barista-express.webp';
+import hatchImg from './assets/images/gifts/hatch-restore-3.webp';
+import awayImg from './assets/images/gifts/away-featherlight-backpack-large.webp';
+import smartFrameImg from './assets/images/gifts/smart-photo-frame.webp';
+import mokobaraImg from './assets/images/gifts/mokobara-em-cabin-pro.webp';
+
 export const site = {
   couple: {
     bride: 'Muskaan',
@@ -34,7 +41,7 @@ export const site = {
 // ── Gifts & Blessings page ──────────────────────────────────────────────────
 // Edit your gift registry and honeymoon-fund payment handles here.
 
-export type RegistryIcon = 'calendar' | 'coffee' | 'alarm' | 'backpack' | 'luggage' | 'gift';
+export type RegistryIcon = 'calendar' | 'coffee' | 'alarm' | 'backpack' | 'luggage' | 'frame' | 'gift';
 
 export interface RegistryItem {
   // Stable key that guests' "finalized" claims are stored under in Firestore.
@@ -42,10 +49,12 @@ export interface RegistryItem {
   id: string;
   name: string;
   note?: string;      // short descriptor shown under the name
-  price: string;      // as displayed, e.g. '$169.99' or '₹7,499'
+  price?: string;     // as displayed, e.g. '$169.99' or '₹7,499'
   store: string;      // shown on the buy link, e.g. 'Amazon'
   link: string;
-  image?: string;     // product photo; falls back to an icon tile when absent
+  // Product photo, imported from src/assets/images/gifts (4:3, product centred
+  // on its own background). Falls back to an icon tile when absent.
+  image?: string;
   icon?: RegistryIcon;
 }
 
@@ -107,6 +116,7 @@ export const gifts: {
             price: '$319.99',
             store: 'Amazon',
             link: 'https://www.amazon.com/dp/B0C9V811L6',
+            image: skylightImg,
             icon: 'calendar',
           },
           {
@@ -116,6 +126,7 @@ export const gifts: {
             price: '$699.95',
             store: 'Amazon',
             link: 'https://www.amazon.com/dp/B00CH9QWOU',
+            image: brevilleImg,
             icon: 'coffee',
           },
           {
@@ -125,6 +136,7 @@ export const gifts: {
             price: '$169.99',
             store: 'Amazon',
             link: 'https://www.amazon.com/dp/B0DLLSCVZW',
+            image: hatchImg,
             icon: 'alarm',
           },
           {
@@ -134,7 +146,17 @@ export const gifts: {
             price: '$118',
             store: 'Away',
             link: 'https://www.awaytravel.com/products/featherlight-backpack-large-amaro-brown',
+            image: awayImg,
             icon: 'backpack',
+          },
+          {
+            id: 'us-smart-photo-frame',
+            name: 'Smart Digital Photo Frame',
+            note: 'Touchscreen photo frame, no subscription fee',
+            store: 'Amazon',
+            link: 'https://a.co/d/0eip28OR',
+            image: smartFrameImg,
+            icon: 'frame',
           },
         ],
       },
@@ -150,6 +172,7 @@ export const gifts: {
             price: '₹7,499',
             store: 'Mokobara',
             link: 'https://mokobara.com/products/the-em-cabin-pro',
+            image: mokobaraImg,
             icon: 'luggage',
           },
         ],

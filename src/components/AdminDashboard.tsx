@@ -449,7 +449,8 @@ export default function AdminDashboard() {
                           {item.name}
                         </p>
                         <p className="text-[10px] text-stone-muted mt-0.5">
-                          {item.section} · {item.price}
+                          {item.section}
+                          {item.price ? ` · ${item.price}` : ''}
                           {taken && at ? ` · taken ${at.toLocaleDateString()}` : ''}
                         </p>
                       </div>

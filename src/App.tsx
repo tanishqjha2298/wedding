@@ -122,9 +122,13 @@ export default function App() {
     // content never leaks into the bride's/groom's-side views.
     setIsFriendsAuthorized(friendsFromUrl || (remembered && !explicitSide));
 
+    // Re-derive both views on every hash change. The gifts page also lives at
+    // the /gifts path, so an in-page hash there must not drop the guest back
+    // to the invitation.
     const onHashChange = () => {
+      const currentPath = window.location.pathname.replace(/\/+$/, '').toLowerCase();
       setIsManageView(window.location.hash === '#manage');
-      setIsGiftsView(window.location.hash === '#gifts');
+      setIsGiftsView(currentPath === '/gifts' || window.location.hash === '#gifts');
     };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);

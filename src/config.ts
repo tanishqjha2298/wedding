@@ -151,8 +151,9 @@ export const gifts: {
           },
           {
             id: 'us-smart-photo-frame',
-            name: 'Smart Digital Photo Frame',
+            name: 'Euphro 15.6" Digital Frame',
             note: 'Touchscreen photo frame, no subscription fee',
+            price: '$129.99',
             store: 'Amazon',
             link: 'https://a.co/d/0eip28OR',
             image: smartFrameImg,

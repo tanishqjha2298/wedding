@@ -9,6 +9,7 @@ import hatchImg from './assets/images/gifts/hatch-restore-3.webp';
 import awayImg from './assets/images/gifts/away-featherlight-backpack-large.webp';
 import smartFrameImg from './assets/images/gifts/smart-photo-frame.webp';
 import mokobaraImg from './assets/images/gifts/mokobara-em-cabin-pro.webp';
+import massageImg from './assets/images/gifts/premium-massage-experience.webp';
 
 export const site = {
   couple: {
@@ -177,6 +178,16 @@ export const gifts: {
             link: 'https://a.co/d/0eip28OR',
             image: smartFrameImg,
             icon: 'frame',
+          },
+          {
+            id: 'us-premium-massage-experience',
+            name: 'Premium Massage Experience',
+            note: 'A relaxing spa day, as a gift card',
+            price: '$200-$400',
+            store: 'Hand & Stone',
+            link: 'https://handandstone.com/giftcards/?center_id=5798a140-71a0-4983-bc1b-f3d0d0fc4b93&giftcard_id=bc45717c-7e4b-44bf-b393-682587fc296b&occasion_id=2046789e-b9f3-4b3f-bf13-dc05292c6827&occasion_image_id=a55e5e74-ad81-447d-9a1c-e45925631851&step=customize',
+            image: massageImg,
+            icon: 'gift',
           },
         ],
       },

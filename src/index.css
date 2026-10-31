@@ -57,6 +57,22 @@ body {
   background-size: 32px 32px;
 }
 
+/* Soft moving sheen across the honeymoon-fund progress bar */
+.fund-shine {
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: fund-shine 2.6s ease-in-out infinite;
+}
+
+@keyframes fund-shine {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fund-shine { animation: none; }
+}
+
 /* Subtle drawn gold underline used under timeline cards */
 .animate-gold-border {
   position: relative;

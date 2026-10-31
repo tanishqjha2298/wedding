@@ -6,13 +6,15 @@ import {
 } from 'lucide-react';
 import {
   gifts, site,
-  type PayMethod, type RegistryItem, type RegistryIcon,
+  type FundId, type PayMethod, type RegistryItem, type RegistryIcon,
 } from '../config';
 import { logFirestoreError, OperationType } from '../firebase';
 import {
   subscribeToClaims, claimItem, isAlreadyClaimed, getMyClaims, rememberMyClaim,
   CLAIMS_COLLECTION, type Claims,
 } from '../registry';
+import { subscribeToPledges, totalsByFund, type Pledge } from '../fund';
+import { FundBar } from './HoneymoonFund';
 
 /** Copy-to-clipboard pill showing the handle with a copy affordance. */
 function CopyHandle({ value, label }: { value: string; label: string }) {
@@ -46,14 +48,16 @@ function CopyHandle({ value, label }: { value: string; label: string }) {
   );
 }
 
-function PayCard({ method }: { method: PayMethod }) {
+function PayCard({ method, highlight = false }: { method: PayMethod; highlight?: boolean }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="bg-white border border-stone-warm rounded-2xl shadow-sm p-6 flex flex-col"
+      className={`bg-white border rounded-2xl shadow-sm p-6 flex flex-col transition-all duration-500 ${
+        highlight ? 'border-clay-rose ring-4 ring-clay-rose/20' : 'border-stone-warm'
+      }`}
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-display text-lg font-semibold text-stone-dark">{method.label}</h3>
@@ -469,15 +473,47 @@ function SectionHeading({ icon, kicker, title }: { icon: React.ReactNode; kicker
 
 export default function Gifts({
   isFriendsAuthorized = false,
-  showFund = true,
   backHref = '/',
 }: {
   isFriendsAuthorized?: boolean;
-  showFund?: boolean; // the Shagun / Honeymoon Fund cash section
   backHref?: string;
 }) {
   const { registry, honeymoon } = gifts;
   const payMethods = honeymoon.methods.filter((m) => m.enabled);
+  // Payment cards sit under their country's fund bar; any method not tied to a
+  // fund is listed after the columns.
+  const fundMethodTypes = new Set(honeymoon.funds.flatMap((f) => f.methods));
+  const looseMethods = payMethods.filter((m) => !fundMethodTypes.has(m.type));
+
+  // Live honeymoon-fund pledges, shared by every guest.
+  const [pledges, setPledges] = useState<Pledge[]>([]);
+  const [pledgesReady, setPledgesReady] = useState(false);
+  const [pledgesUnavailable, setPledgesUnavailable] = useState(false);
+  const [highlightFund, setHighlightFund] = useState<FundId | null>(null);
+
+  useEffect(
+    () =>
+      subscribeToPledges(
+        (next) => {
+          setPledges(next);
+          setPledgesReady(true);
+          setPledgesUnavailable(false);
+        },
+        () => {
+          setPledgesReady(true);
+          setPledgesUnavailable(true);
+        },
+      ),
+    [],
+  );
+  const fundTotals = totalsByFund(pledges);
+
+  // After a donation, bring the matching payment cards into view and glow them briefly.
+  const showPaymentFor = (fund: FundId) => {
+    document.getElementById(`fund-pay-${fund}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setHighlightFund(fund);
+    window.setTimeout(() => setHighlightFund((f) => (f === fund ? null : f)), 2600);
+  };
 
   // Live claims shared by all guests, plus the ones this browser finalized.
   const [claims, setClaims] = useState<Claims>({});
@@ -638,8 +674,9 @@ export default function Gifts({
           </section>
         )}
 
-        {/* Shagun / Honeymoon fund */}
-        {showFund && honeymoon.enabled && payMethods.length > 0 && (
+        {/* Shagun / Honeymoon fund: a live progress bar per country, with that
+            country's payment details right under it */}
+        {honeymoon.enabled && payMethods.length > 0 && (
           <section className="mb-12">
             <SectionHeading icon={fundIcon} kicker={fundKicker} title={fundHeading} />
             {honeymoon.blurb && (
@@ -647,11 +684,33 @@ export default function Gifts({
                 {honeymoon.blurb}
               </p>
             )}
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
-              {payMethods.map((method) => (
-                <PayCard key={method.type} method={method} />
+            <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto items-start">
+              {honeymoon.funds.map((fund) => (
+                <div key={fund.id} className="space-y-4">
+                  <FundBar
+                    fund={fund}
+                    totals={fundTotals[fund.id]}
+                    ready={pledgesReady}
+                    unavailable={pledgesUnavailable}
+                    onSendNow={() => showPaymentFor(fund.id)}
+                  />
+                  <div id={`fund-pay-${fund.id}`} className="space-y-4 scroll-mt-6">
+                    {payMethods
+                      .filter((m) => fund.methods.includes(m.type))
+                      .map((method) => (
+                        <PayCard key={method.type} method={method} highlight={highlightFund === fund.id} />
+                      ))}
+                  </div>
+                </div>
               ))}
             </div>
+            {looseMethods.length > 0 && (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto mt-8">
+                {looseMethods.map((method) => (
+                  <PayCard key={method.type} method={method} />
+                ))}
+              </div>
+            )}
           </section>
         )}
 

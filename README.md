@@ -101,6 +101,14 @@ everyone, so never rename an `id` once guests can see it. Add a photo by setting
 `image` (otherwise an icon is shown). Hosts can release a finalized gift from the
 **Gift Registry** panel in `#manage`.
 
+### Honeymoon fund bars
+`gifts.honeymoon.funds` in [`src/config.ts`](./src/config.ts) sets each bar's goal,
+quick amounts, per-entry cap and the payment cards shown under it. Each Donate tap
+is saved in Firestore under `fundPledges` (fund, amount, time; no names) and every
+visitor sees the live total. If you change `maxPerEntry`, update the matching caps
+in `firestore.rules`. Hosts can remove a mistaken entry from the **Honeymoon Fund**
+panel in `#manage`.
+
 ### Photos
 The real venue photo is `src/assets/images/gaj_kesari.webp`. To add more (couple
 photos, the pool/courtyard, evening shots), drop the files into

@@ -75,9 +75,9 @@ export default function App() {
   });
 
   // Audience-specific variants, detected from the URL:
-  //  • /ladkiwale (bride's side)  → gift registry only (no Shagun section)
-  //  • /ladkewale (groom's side)  → gift registry + Shagun
-  //  • friends                    → gift registry + Honeymoon Fund
+  //  • /ladkiwale (bride's side)  → no Gifts & Blessings at all
+  //  • /ladkewale (groom's side)  → gift registry + honeymoon fund (Shagun)
+  //  • friends                    → gift registry + honeymoon fund
   const side = (() => {
     if (typeof window === 'undefined') return null;
     const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
@@ -86,9 +86,10 @@ export default function App() {
     if (path === '/ladkewale' || q === 'ladkewale') return 'ladkewale';
     return null;
   })();
-  // The general/default view shows no gifts; every audience link does.
-  const hideGifts = !(isFriendsAuthorized || side !== null);
-  const showFund = side !== 'ladkiwale';
+  // Gifts appear only for friends and the groom's side; the general view and
+  // the bride's side (/ladkiwale) show none.
+  const hideGifts = !(isFriendsAuthorized || side === 'ladkewale');
+  const giftsBlocked = side === 'ladkiwale';
 
   useEffect(() => {
     // Friends unlock via a clean path (/friends, /crew) or query (?invite=friends,
@@ -134,6 +135,12 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
+  // The bride's side has no gifts page: a direct /gifts?side=ladkiwale visit
+  // shows the invitation, so tidy the address to match.
+  useEffect(() => {
+    if (isGiftsView && giftsBlocked) window.history.replaceState(null, '', '/ladkiwale');
+  }, [isGiftsView, giftsBlocked]);
+
   const handleScrollToRsvp = () => {
     document.getElementById('rsvp-section')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -152,14 +159,8 @@ export default function App() {
   const giftsBackHref = side ? `/${side}` : isFriendsAuthorized ? '/?invite=friends' : '/';
 
   // ── Gifts & Blessings (public) ──────────────────────────────────────────
-  if (isGiftsView) {
-    return (
-      <Gifts
-        isFriendsAuthorized={isFriendsAuthorized}
-        showFund={showFund}
-        backHref={giftsBackHref}
-      />
-    );
+  if (isGiftsView && !giftsBlocked) {
+    return <Gifts isFriendsAuthorized={isFriendsAuthorized} backHref={giftsBackHref} />;
   }
 
   // ── Host console (private) ──────────────────────────────────────────────

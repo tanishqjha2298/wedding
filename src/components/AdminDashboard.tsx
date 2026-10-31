@@ -15,6 +15,9 @@ import { RsvpFormState, GuestSide } from '../types';
 import { weddingEvents } from '../data/events';
 import { site, gifts } from '../config';
 import { subscribeToClaims, releaseItem, type Claims } from '../registry';
+import { subscribeToPledges, removePledge, totalsByFund, formatMoney, type Pledge } from '../fund';
+
+const fundsById = Object.fromEntries(gifts.honeymoon.funds.map((f) => [f.id, f]));
 
 // Every registry item, labelled with its section (e.g. "US Residents").
 const registryItems = gifts.registry.sections.flatMap((s) =>
@@ -58,6 +61,8 @@ export default function AdminDashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [giftClaims, setGiftClaims] = useState<Claims>({});
   const [releasingId, setReleasingId] = useState<string | null>(null);
+  const [pledges, setPledges] = useState<Pledge[]>([]);
+  const [removingPledgeId, setRemovingPledgeId] = useState<string | null>(null);
 
   const isAdmin = Boolean(
     user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase()),
@@ -120,6 +125,35 @@ export default function AdminDashboard() {
     }
     return subscribeToClaims(setGiftClaims, () => setGiftClaims({}));
   }, [isAdmin]);
+
+  // Honeymoon fund entries (readable by anyone; hosts can remove them)
+  useEffect(() => {
+    if (!isAdmin) {
+      setPledges([]);
+      return;
+    }
+    return subscribeToPledges(setPledges, () => setPledges([]));
+  }, [isAdmin]);
+
+  const handleRemovePledge = async (p: Pledge) => {
+    const fund = fundsById[p.fund];
+    const label = fund ? `${formatMoney(p.amount, fund.currency)} entry from the ${fund.title} bar` : 'entry';
+    if (!window.confirm(`Remove this ${label}? The bar will go down for everyone.`)) return;
+    setRemovingPledgeId(p.id);
+    try {
+      await removePledge(p.id);
+    } catch (e) {
+      logFirestoreError(e, OperationType.DELETE, `fundPledges/${p.id}`);
+      alert('Could not remove this entry. Please try again.');
+    } finally {
+      setRemovingPledgeId(null);
+    }
+  };
+
+  const fundTotals = totalsByFund(pledges);
+  const pledgesNewestFirst = [...pledges].sort(
+    (a, b) => (b.createdAt?.getTime() ?? Infinity) - (a.createdAt?.getTime() ?? Infinity),
+  );
 
   const handleRelease = async (id: string, name: string) => {
     if (!window.confirm(`Make "${name}" available again? Any guest will be able to finalize it.`)) return;
@@ -471,6 +505,62 @@ export default function AdminDashboard() {
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Honeymoon fund */}
+          {gifts.honeymoon.funds.length > 0 && (
+            <div className="bg-cream-stone/60 border border-stone-warm p-5 sm:p-6 rounded-2xl">
+              <h4 className="font-serif italic text-base text-stone-dark flex items-center gap-1.5 mb-4">
+                <TrendingUp className="w-4 h-4 text-clay-rose shrink-0" />
+                Honeymoon Fund
+              </h4>
+              <div className="grid sm:grid-cols-2 gap-3 mb-4">
+                {gifts.honeymoon.funds.map((fund) => {
+                  const t = fundTotals[fund.id];
+                  return (
+                    <div key={fund.id} className="bg-white p-4 rounded-xl border border-stone-warm/50 shadow-sm">
+                      <span className="text-xs font-semibold text-stone-dark">{fund.title}</span>
+                      <div className="font-display text-2xl font-bold text-clay-rose mt-1">
+                        {formatMoney(t.total, fund.currency)}
+                      </div>
+                      <span className="text-[10px] text-stone-muted">
+                        of {formatMoney(fund.goal, fund.currency)} goal · {t.count} {t.count === 1 ? 'entry' : 'entries'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              {pledgesNewestFirst.length > 0 ? (
+                <div className="bg-white rounded-xl border border-stone-warm/50 max-h-72 overflow-y-auto divide-y divide-stone-warm/50">
+                  {pledgesNewestFirst.map((p) => {
+                    const fund = fundsById[p.fund];
+                    return (
+                      <div key={p.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
+                        <div className="min-w-0">
+                          <span className="text-sm font-semibold text-stone-dark font-mono">
+                            {fund ? formatMoney(p.amount, fund.currency) : p.amount}
+                          </span>
+                          <span className="text-[10px] text-stone-muted ml-2">
+                            {fund?.title.replace(/^For /, '')}
+                            {p.createdAt ? ` · ${p.createdAt.toLocaleString()}` : ''}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => handleRemovePledge(p)}
+                          disabled={removingPledgeId === p.id}
+                          title="Remove this entry"
+                          className="cursor-pointer shrink-0 p-1.5 rounded-lg text-stone-muted hover:text-red-600 hover:bg-red-50 transition-all disabled:opacity-60"
+                        >
+                          {removingPledgeId === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-stone-muted italic">No contributions yet.</p>
+              )}
             </div>
           )}
 

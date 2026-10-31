@@ -82,6 +82,20 @@ export interface PayMethod {
   entries: PayEntry[]; // one per person
 }
 
+// A live "sponsor our honeymoon" progress bar. Guests' entries are stored in
+// Firestore (fundPledges) and summed per fund, so every visitor sees the same total.
+export type FundId = 'us' | 'india';
+
+export interface HoneymoonFund {
+  id: FundId;
+  title: string;            // e.g. 'For US Residents'
+  currency: 'USD' | 'INR';
+  goal: number;             // whole currency units
+  quickAmounts: number[];   // one-tap amount chips
+  maxPerEntry: number;      // keep in sync with fundPledges in firestore.rules
+  methods: PayType[];       // payment cards shown under this bar
+}
+
 export const gifts: {
   intro: string;
   registry: { enabled: boolean; heading: string; kicker: string; sections: RegistrySection[] };
@@ -92,6 +106,7 @@ export const gifts: {
     kicker: string;
     kickerFriends: string;
     blurb: string;
+    funds: HoneymoonFund[];
     methods: PayMethod[];
   };
 } = {
@@ -188,8 +203,28 @@ export const gifts: {
     headingFriends: 'Honeymoon Fund',
     kicker: 'With Your Blessings',
     kickerFriends: 'Sponsor Our Honeymoon!',
-    blurb: '',
-    // TODO: replace placeholder handles with your real ones.
+    blurb:
+      'Help us get to our honeymoon! Enter an amount and tap Donate to fill up the bar, then send it using the details below.',
+    funds: [
+      {
+        id: 'us',
+        title: 'For US Residents',
+        currency: 'USD',
+        goal: 5000,
+        quickAmounts: [51, 101, 251],
+        maxPerEntry: 10000,
+        methods: ['zelle', 'venmo'],
+      },
+      {
+        id: 'india',
+        title: 'For Indian Residents',
+        currency: 'INR',
+        goal: 200000,
+        quickAmounts: [1100, 2100, 5100],
+        maxPerEntry: 1000000,
+        methods: ['upi'],
+      },
+    ],
     methods: [
       {
         type: 'upi',

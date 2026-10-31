@@ -101,12 +101,15 @@ everyone, so never rename an `id` once guests can see it. Add a photo by setting
 `image` (otherwise an icon is shown). Hosts can release a finalized gift from the
 **Gift Registry** panel in `#manage`.
 
-### Honeymoon fund bars
-`gifts.honeymoon.funds` in [`src/config.ts`](./src/config.ts) sets each bar's goal,
-quick amounts, per-entry cap and the payment cards shown under it. Each Donate tap
-is saved in Firestore under `fundPledges` (fund, amount, time; no names) and every
-visitor sees the live total. If you change `maxPerEntry`, update the matching caps
-in `firestore.rules`. Hosts can remove a mistaken entry from the **Honeymoon Fund**
+### Honeymoon fund bar
+One shared pool that guests can view and give to in dollars or rupees.
+`gifts.honeymoon.pool` in [`src/config.ts`](./src/config.ts) sets the goal (in USD),
+the fixed rupee rate used to combine the two currencies, and per-currency quick
+amounts, per-entry caps and the payment cards to point donors to. Each Donate tap
+is saved in Firestore under `fundPledges` in the currency it was given in
+(`fund: 'us'` = USD, `'india'` = INR, amount, time; no names) and every visitor sees
+the live total. If you change `maxPerEntry`, update the matching caps in
+`firestore.rules`. Hosts can remove a mistaken entry from the **Honeymoon Fund**
 panel in `#manage`.
 
 ### Photos

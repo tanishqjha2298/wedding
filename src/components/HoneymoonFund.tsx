@@ -1,18 +1,46 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, animate } from 'motion/react';
 import { Heart, Loader2, PartyPopper, ArrowDown, HandCoins } from 'lucide-react';
-import type { HoneymoonFund, PayType } from '../config';
+import type { FundCurrency, HoneymoonPool, PayType } from '../config';
 import { logFirestoreError, OperationType } from '../firebase';
-import { addPledge, formatMoney, PLEDGES_COLLECTION, type FundTotal } from '../fund';
+import { addPledge, formatMoney, poolIn, PLEDGES_COLLECTION, type PoolTotals } from '../fund';
 import { primeAudio, playClink } from '../sound';
 
 const METHOD_NAMES: Record<PayType, string> = { upi: 'UPI', zelle: 'Zelle', venmo: 'Venmo' };
+const CURRENCY_KEY = 'fundCurrency';
 
-/** Animates a number from its previous value (0 on first render) to the new one. */
-function CountUp({ value, format }: { value: number; format: (n: number) => string }) {
+/** Remembered choice, else rupees for visitors on Indian time, else dollars. */
+function initialCurrency(): FundCurrency {
+  try {
+    const saved = localStorage.getItem(CURRENCY_KEY);
+    if (saved === 'USD' || saved === 'INR') return saved;
+  } catch {
+    // storage unavailable
+  }
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (tz === 'Asia/Kolkata' || tz === 'Asia/Calcutta') return 'INR';
+  } catch {
+    // Intl unavailable
+  }
+  return 'USD';
+}
+
+/**
+ * Animates a number up from its previous value (0 on first render). When
+ * `resetKey` changes (e.g. the currency switch) it jumps straight to the value.
+ */
+function CountUp({ value, format, resetKey }: { value: number; format: (n: number) => string; resetKey: string }) {
   const [shown, setShown] = useState(0);
   const from = useRef(0);
+  const lastKey = useRef(resetKey);
   useEffect(() => {
+    if (lastKey.current !== resetKey) {
+      lastKey.current = resetKey;
+      from.current = value;
+      setShown(value);
+      return;
+    }
     const controls = animate(from.current, value, {
       duration: 1.4,
       ease: [0.22, 1, 0.36, 1],
@@ -20,46 +48,62 @@ function CountUp({ value, format }: { value: number; format: (n: number) => stri
     });
     from.current = value;
     return () => controls.stop();
-  }, [value]);
-  return <>{format(Math.round(shown))}</>;
+  }, [value, resetKey]);
+  return <>{format(shown)}</>;
 }
 
 type Status = 'idle' | 'done' | 'error';
 
-export function FundBar({
-  fund, totals, ready, unavailable, onSendNow,
+export function HoneymoonFundBar({
+  pool, totals, ready, unavailable, onSendNow,
 }: {
-  fund: HoneymoonFund;
-  totals: FundTotal;
+  pool: HoneymoonPool;
+  totals: PoolTotals;
   ready: boolean;
   unavailable: boolean;
-  onSendNow: () => void;
+  onSendNow: (currency: FundCurrency) => void;
 }) {
+  const [currency, setCurrency] = useState<FundCurrency>(initialCurrency);
   const [amount, setAmount] = useState(''); // digits only
   const [status, setStatus] = useState<Status>('idle');
   const [saving, setSaving] = useState(false);
-  const [lastAmount, setLastAmount] = useState(0);
+  const [lastGift, setLastGift] = useState<{ amount: number; currency: FundCurrency } | null>(null);
 
-  const money = (n: number) => formatMoney(n, fund.currency);
-  const symbol = fund.currency === 'INR' ? '₹' : '$';
+  const opts = pool.currencies[currency];
+  const money = (n: number) => formatMoney(n, currency);
+  const symbol = currency === 'INR' ? '₹' : '$';
   const value = amount ? parseInt(amount, 10) : 0;
-  const tooBig = value > fund.maxPerEntry;
+  const tooBig = value > opts.maxPerEntry;
   const canDonate = ready && !unavailable && !saving && value >= 1 && !tooBig;
 
-  const pct = fund.goal > 0 ? Math.min(100, (totals.total / fund.goal) * 100) : 0;
-  const reached = totals.total >= fund.goal;
-  const methodNames = fund.methods.map((m) => METHOD_NAMES[m]).join(' or ');
+  const raised = poolIn(totals, currency, pool.inrPerUsd);
+  const goal = currency === 'USD' ? pool.goalUsd : pool.goalUsd * pool.inrPerUsd;
+  const raisedUsd = poolIn(totals, 'USD', pool.inrPerUsd);
+  const pct = pool.goalUsd > 0 ? Math.min(100, (raisedUsd / pool.goalUsd) * 100) : 0;
+  const reached = raisedUsd >= pool.goalUsd;
+
+  const switchCurrency = (c: FundCurrency) => {
+    if (c === currency) return;
+    setCurrency(c);
+    setAmount('');
+    setStatus('idle');
+    try {
+      localStorage.setItem(CURRENCY_KEY, c);
+    } catch {
+      // storage unavailable
+    }
+  };
 
   const donate = async () => {
     if (!canDonate) return;
-    const gift = value;
+    const gift = { amount: value, currency };
     primeAudio(); // must run inside the click so the browser allows sound
     playClink(); // the bar moves at the same moment (Firestore applies the write locally first)
     setSaving(true);
     setStatus('idle');
     try {
-      await addPledge(fund.id, gift);
-      setLastAmount(gift);
+      await addPledge(gift.currency, gift.amount);
+      setLastGift(gift);
       setAmount('');
       setStatus('done');
     } catch (e) {
@@ -76,22 +120,40 @@ export function FundBar({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="bg-white border border-stone-warm rounded-2xl shadow-sm p-6"
+      className="bg-white border border-stone-warm rounded-2xl shadow-sm p-6 sm:p-7"
     >
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <h3 className="font-display text-lg font-semibold text-stone-dark">{fund.title}</h3>
-        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-sand-gold bg-orange-50 border border-sand-gold/30 rounded-full px-2.5 py-1">
-          {fund.currency}
-        </span>
+      <div className="flex items-center justify-between gap-3 mb-5">
+        <h3 className="font-display text-base sm:text-lg font-semibold text-stone-dark whitespace-nowrap">Honeymoon Goal</h3>
+        <div role="radiogroup" aria-label="Currency" className="inline-flex bg-cream-stone border border-stone-warm rounded-full p-1">
+          {(['USD', 'INR'] as const).map((c) => (
+            <button
+              key={c}
+              type="button"
+              role="radio"
+              aria-checked={currency === c}
+              onClick={() => switchCurrency(c)}
+              className={`cursor-pointer px-3 py-1 rounded-full text-[11px] font-sans font-bold tracking-wide whitespace-nowrap transition-all ${
+                currency === c ? 'bg-clay-rose text-white shadow-sm' : 'text-stone-muted hover:text-stone-dark'
+              }`}
+            >
+              <span className="hidden sm:inline">{c === 'USD' ? '$ ' : '₹ '}</span>
+              {c}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Total raised */}
-      <p className="font-serif text-3xl sm:text-4xl text-clay-dark leading-none">
-        {unavailable ? <span className="text-stone-muted">…</span> : <CountUp value={totals.total} format={money} />}
+      <p className="font-serif text-4xl sm:text-5xl text-clay-dark leading-none">
+        {unavailable ? (
+          <span className="text-stone-muted">…</span>
+        ) : (
+          <CountUp value={raised} format={money} resetKey={currency} />
+        )}
         <span className="font-sans text-sm text-stone-muted ml-2">raised</span>
       </p>
-      <p className="mt-1.5 text-xs font-sans text-stone-muted">
-        of {money(fund.goal)} goal ·{' '}
+      <p className="mt-2 text-xs font-sans text-stone-muted">
+        of {money(goal)} goal ·{' '}
         {totals.count === 0
           ? 'be the first to chip in!'
           : `${totals.count} ${totals.count === 1 ? 'contribution' : 'contributions'}`}
@@ -100,11 +162,11 @@ export function FundBar({
       {/* Progress bar */}
       <div
         role="progressbar"
-        aria-label={`${fund.title} honeymoon fund`}
+        aria-label="Honeymoon fund"
         aria-valuemin={0}
-        aria-valuemax={fund.goal}
-        aria-valuenow={totals.total}
-        className="relative mt-4 h-4 rounded-full bg-stone-warm/60 overflow-hidden"
+        aria-valuemax={pool.goalUsd}
+        aria-valuenow={Math.round(raisedUsd)}
+        className="relative mt-5 h-4 rounded-full bg-stone-warm/60 overflow-hidden"
       >
         <motion.div
           className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-sand-gold via-mandarin to-clay-rose overflow-hidden"
@@ -123,18 +185,18 @@ export function FundBar({
         ) : (
           <span className="text-stone-muted">{Math.floor(pct)}% there</span>
         )}
-        <span className="text-stone-muted">{money(fund.goal)}</span>
+        <span className="text-stone-muted">{money(goal)}</span>
       </div>
 
       {/* Donate */}
-      <div className="mt-5 flex items-stretch gap-2">
+      <div className="mt-6 flex items-stretch gap-2">
         <label className="flex-1 flex items-center bg-cream-stone border border-stone-warm rounded-xl px-3 focus-within:border-clay-rose focus-within:ring-1 focus-within:ring-clay-rose transition-all">
           <span className="text-stone-muted font-mono text-sm mr-1.5">{symbol}</span>
           <input
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            aria-label={`Amount in ${fund.currency}`}
+            aria-label={`Amount in ${currency}`}
             placeholder="Amount"
             value={amount}
             onChange={(e) => {
@@ -158,7 +220,7 @@ export function FundBar({
       </div>
 
       <div className="mt-2.5 flex flex-wrap gap-2">
-        {fund.quickAmounts.map((q) => (
+        {opts.quickAmounts.map((q) => (
           <button
             key={q}
             type="button"
@@ -181,7 +243,7 @@ export function FundBar({
       {/* Messages */}
       {tooBig && (
         <p className="mt-3 text-xs font-sans text-clay-rose">
-          The most we can add in one go is {money(fund.maxPerEntry)}.
+          The most we can add in one go is {money(opts.maxPerEntry)}.
         </p>
       )}
       {unavailable && (
@@ -194,7 +256,7 @@ export function FundBar({
           We couldn't add that just now. Please try again in a moment.
         </p>
       )}
-      {status === 'done' && (
+      {status === 'done' && lastGift && (
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
@@ -203,18 +265,24 @@ export function FundBar({
           <p className="text-xs font-sans text-emerald-900 leading-relaxed flex gap-2">
             <Heart className="w-4 h-4 shrink-0 text-emerald-600 mt-px" />
             <span>
-              Thank you! {money(lastAmount)} is on the bar. Now please send it via {methodNames} using the details below.
+              Thank you! {formatMoney(lastGift.amount, lastGift.currency)} is on the bar. Now please send it via{' '}
+              {pool.currencies[lastGift.currency].methods.map((m) => METHOD_NAMES[m]).join(' or ')} using the
+              details below.
             </span>
           </p>
           <button
             type="button"
-            onClick={onSendNow}
+            onClick={() => onSendNow(lastGift.currency)}
             className="cursor-pointer mt-2 ml-6 inline-flex items-center gap-1 text-[11px] font-sans font-bold uppercase tracking-wider text-emerald-800 hover:text-emerald-950"
           >
             Show me where <ArrowDown className="w-3.5 h-3.5" />
           </button>
         </motion.div>
       )}
+
+      <p className="mt-5 text-[10px] font-sans text-stone-muted text-center">
+        Dollar and rupee gifts fill the same bar · ₹{pool.inrPerUsd} = $1
+      </p>
     </motion.div>
   );
 }

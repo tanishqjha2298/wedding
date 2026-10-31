@@ -74,10 +74,12 @@ service cloud.firestore {
       allow delete: if isHostAdmin();
     }
 
-    // 6. Honeymoon fund entries: one doc per Donate tap. Everyone can read them
-    // (amounts only, no names) to show the live bars. Guests can add an entry
-    // with a whole amount up to the per-fund cap (keep in sync with maxPerEntry
-    // in src/config.ts); nobody can edit one, and only the hosts can remove one.
+    // 6. Honeymoon fund entries: one doc per Donate tap into the shared pool.
+    // fund 'us' = amount in USD, 'india' = amount in INR. Everyone can read them
+    // (amounts only, no names) to show the live bar. Guests can add an entry
+    // with a whole amount up to the per-currency cap (keep in sync with
+    // maxPerEntry in src/config.ts); nobody can edit one, and only the hosts
+    // can remove one.
     match /fundPledges/{pledgeId} {
       allow read: if true;
       allow create: if isValidId(pledgeId)

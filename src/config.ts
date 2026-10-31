@@ -82,18 +82,22 @@ export interface PayMethod {
   entries: PayEntry[]; // one per person
 }
 
-// A live "sponsor our honeymoon" progress bar. Guests' entries are stored in
-// Firestore (fundPledges) and summed per fund, so every visitor sees the same total.
-export type FundId = 'us' | 'india';
+// A live "sponsor our honeymoon" progress bar: one shared pool that guests can
+// view and give to in dollars or rupees. Entries are stored in Firestore
+// (fundPledges) in the currency they were given in, and the bar converts
+// rupees at a fixed rate so every visitor sees the same total.
+export type FundCurrency = 'USD' | 'INR';
 
-export interface HoneymoonFund {
-  id: FundId;
-  title: string;            // e.g. 'For US Residents'
-  currency: 'USD' | 'INR';
-  goal: number;             // whole currency units
+export interface FundCurrencyOptions {
   quickAmounts: number[];   // one-tap amount chips
   maxPerEntry: number;      // keep in sync with fundPledges in firestore.rules
-  methods: PayType[];       // payment cards shown under this bar
+  methods: PayType[];       // payment cards to point donors to after they give
+}
+
+export interface HoneymoonPool {
+  goalUsd: number;          // the shared target, in dollars
+  inrPerUsd: number;        // fixed conversion rate used for the bar
+  currencies: Record<FundCurrency, FundCurrencyOptions>;
 }
 
 export const gifts: {
@@ -106,7 +110,7 @@ export const gifts: {
     kicker: string;
     kickerFriends: string;
     blurb: string;
-    funds: HoneymoonFund[];
+    pool: HoneymoonPool;
     methods: PayMethod[];
   };
 } = {
@@ -204,27 +208,15 @@ export const gifts: {
     kicker: 'With Your Blessings',
     kickerFriends: 'Sponsor Our Honeymoon!',
     blurb:
-      'Help us get to our honeymoon! Enter an amount and tap Donate to fill up the bar, then send it using the details below.',
-    funds: [
-      {
-        id: 'us',
-        title: 'For US Residents',
-        currency: 'USD',
-        goal: 5000,
-        quickAmounts: [51, 101, 251],
-        maxPerEntry: 10000,
-        methods: ['zelle', 'venmo'],
+      'Help us get to our honeymoon! Pick dollars or rupees, enter an amount and tap Donate to fill up the bar, then send it using the details below.',
+    pool: {
+      goalUsd: 2000,
+      inrPerUsd: 95, // approx. rate, Oct 2026
+      currencies: {
+        USD: { quickAmounts: [51, 101, 251], maxPerEntry: 10000, methods: ['zelle', 'venmo'] },
+        INR: { quickAmounts: [1100, 2100, 5100], maxPerEntry: 1000000, methods: ['upi'] },
       },
-      {
-        id: 'india',
-        title: 'For Indian Residents',
-        currency: 'INR',
-        goal: 200000,
-        quickAmounts: [1100, 2100, 5100],
-        maxPerEntry: 1000000,
-        methods: ['upi'],
-      },
-    ],
+    },
     methods: [
       {
         type: 'upi',

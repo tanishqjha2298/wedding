@@ -15,9 +15,9 @@ import { RsvpFormState, GuestSide } from '../types';
 import { weddingEvents } from '../data/events';
 import { site, gifts } from '../config';
 import { subscribeToClaims, releaseItem, type Claims } from '../registry';
-import { subscribeToPledges, removePledge, totalsByFund, formatMoney, type Pledge } from '../fund';
+import { subscribeToPledges, removePledge, poolTotals, poolIn, formatMoney, type Pledge } from '../fund';
 
-const fundsById = Object.fromEntries(gifts.honeymoon.funds.map((f) => [f.id, f]));
+const pool = gifts.honeymoon.pool;
 
 // Every registry item, labelled with its section (e.g. "US Residents").
 const registryItems = gifts.registry.sections.flatMap((s) =>
@@ -136,9 +136,8 @@ export default function AdminDashboard() {
   }, [isAdmin]);
 
   const handleRemovePledge = async (p: Pledge) => {
-    const fund = fundsById[p.fund];
-    const label = fund ? `${formatMoney(p.amount, fund.currency)} entry from the ${fund.title} bar` : 'entry';
-    if (!window.confirm(`Remove this ${label}? The bar will go down for everyone.`)) return;
+    const label = formatMoney(p.amount, p.currency);
+    if (!window.confirm(`Remove this ${label} entry? The bar will go down for everyone.`)) return;
     setRemovingPledgeId(p.id);
     try {
       await removePledge(p.id);
@@ -150,7 +149,8 @@ export default function AdminDashboard() {
     }
   };
 
-  const fundTotals = totalsByFund(pledges);
+  const fundTotals = poolTotals(pledges);
+  const raisedUsd = poolIn(fundTotals, 'USD', pool.inrPerUsd);
   const pledgesNewestFirst = [...pledges].sort(
     (a, b) => (b.createdAt?.getTime() ?? Infinity) - (a.createdAt?.getTime() ?? Infinity),
   );
@@ -509,41 +509,44 @@ export default function AdminDashboard() {
           )}
 
           {/* Honeymoon fund */}
-          {gifts.honeymoon.funds.length > 0 && (
+          {gifts.honeymoon.enabled && (
             <div className="bg-cream-stone/60 border border-stone-warm p-5 sm:p-6 rounded-2xl">
               <h4 className="font-serif italic text-base text-stone-dark flex items-center gap-1.5 mb-4">
                 <TrendingUp className="w-4 h-4 text-clay-rose shrink-0" />
                 Honeymoon Fund
               </h4>
-              <div className="grid sm:grid-cols-2 gap-3 mb-4">
-                {gifts.honeymoon.funds.map((fund) => {
-                  const t = fundTotals[fund.id];
-                  return (
-                    <div key={fund.id} className="bg-white p-4 rounded-xl border border-stone-warm/50 shadow-sm">
-                      <span className="text-xs font-semibold text-stone-dark">{fund.title}</span>
-                      <div className="font-display text-2xl font-bold text-clay-rose mt-1">
-                        {formatMoney(t.total, fund.currency)}
-                      </div>
-                      <span className="text-[10px] text-stone-muted">
-                        of {formatMoney(fund.goal, fund.currency)} goal · {t.count} {t.count === 1 ? 'entry' : 'entries'}
-                      </span>
-                    </div>
-                  );
-                })}
+              <div className="grid sm:grid-cols-3 gap-3 mb-4">
+                <div className="bg-white p-4 rounded-xl border border-stone-warm/50 shadow-sm">
+                  <span className="text-xs font-semibold text-stone-dark">Pool total</span>
+                  <div className="font-display text-2xl font-bold text-clay-rose mt-1">{formatMoney(raisedUsd, 'USD')}</div>
+                  <span className="text-[10px] text-stone-muted">
+                    of {formatMoney(pool.goalUsd, 'USD')} goal · {formatMoney(raisedUsd * pool.inrPerUsd, 'INR')}
+                  </span>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-stone-warm/50 shadow-sm">
+                  <span className="text-xs font-semibold text-stone-dark">Given in dollars</span>
+                  <div className="font-display text-2xl font-bold text-stone-dark mt-1">{formatMoney(fundTotals.usd, 'USD')}</div>
+                  <span className="text-[10px] text-stone-muted">via Zelle / Venmo</span>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-stone-warm/50 shadow-sm">
+                  <span className="text-xs font-semibold text-stone-dark">Given in rupees</span>
+                  <div className="font-display text-2xl font-bold text-stone-dark mt-1">{formatMoney(fundTotals.inr, 'INR')}</div>
+                  <span className="text-[10px] text-stone-muted">
+                    via UPI · ₹{pool.inrPerUsd} = $1 on the bar
+                  </span>
+                </div>
               </div>
               {pledgesNewestFirst.length > 0 ? (
                 <div className="bg-white rounded-xl border border-stone-warm/50 max-h-72 overflow-y-auto divide-y divide-stone-warm/50">
                   {pledgesNewestFirst.map((p) => {
-                    const fund = fundsById[p.fund];
                     return (
                       <div key={p.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
                         <div className="min-w-0">
                           <span className="text-sm font-semibold text-stone-dark font-mono">
-                            {fund ? formatMoney(p.amount, fund.currency) : p.amount}
+                            {formatMoney(p.amount, p.currency)}
                           </span>
                           <span className="text-[10px] text-stone-muted ml-2">
-                            {fund?.title.replace(/^For /, '')}
-                            {p.createdAt ? ` · ${p.createdAt.toLocaleString()}` : ''}
+                            {p.createdAt ? p.createdAt.toLocaleString() : 'just now'}
                           </span>
                         </div>
                         <button

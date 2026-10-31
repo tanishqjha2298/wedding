@@ -6,15 +6,15 @@ import {
 } from 'lucide-react';
 import {
   gifts, site,
-  type FundId, type PayMethod, type RegistryItem, type RegistryIcon,
+  type FundCurrency, type PayMethod, type PayType, type RegistryItem, type RegistryIcon,
 } from '../config';
 import { logFirestoreError, OperationType } from '../firebase';
 import {
   subscribeToClaims, claimItem, isAlreadyClaimed, getMyClaims, rememberMyClaim,
   CLAIMS_COLLECTION, type Claims,
 } from '../registry';
-import { subscribeToPledges, totalsByFund, type Pledge } from '../fund';
-import { FundBar } from './HoneymoonFund';
+import { subscribeToPledges, poolTotals, type Pledge } from '../fund';
+import { HoneymoonFundBar } from './HoneymoonFund';
 
 /** Copy-to-clipboard pill showing the handle with a copy affordance. */
 function CopyHandle({ value, label }: { value: string; label: string }) {
@@ -480,16 +480,12 @@ export default function Gifts({
 }) {
   const { registry, honeymoon } = gifts;
   const payMethods = honeymoon.methods.filter((m) => m.enabled);
-  // Payment cards sit under their country's fund bar; any method not tied to a
-  // fund is listed after the columns.
-  const fundMethodTypes = new Set(honeymoon.funds.flatMap((f) => f.methods));
-  const looseMethods = payMethods.filter((m) => !fundMethodTypes.has(m.type));
 
   // Live honeymoon-fund pledges, shared by every guest.
   const [pledges, setPledges] = useState<Pledge[]>([]);
   const [pledgesReady, setPledgesReady] = useState(false);
   const [pledgesUnavailable, setPledgesUnavailable] = useState(false);
-  const [highlightFund, setHighlightFund] = useState<FundId | null>(null);
+  const [highlightMethods, setHighlightMethods] = useState<PayType[]>([]);
 
   useEffect(
     () =>
@@ -506,13 +502,14 @@ export default function Gifts({
       ),
     [],
   );
-  const fundTotals = totalsByFund(pledges);
+  const totals = poolTotals(pledges);
 
-  // After a donation, bring the matching payment cards into view and glow them briefly.
-  const showPaymentFor = (fund: FundId) => {
-    document.getElementById(`fund-pay-${fund}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setHighlightFund(fund);
-    window.setTimeout(() => setHighlightFund((f) => (f === fund ? null : f)), 2600);
+  // After a donation, bring the payment cards for that currency into view and glow them briefly.
+  const showPaymentFor = (currency: FundCurrency) => {
+    const methods = honeymoon.pool.currencies[currency].methods;
+    document.getElementById(`pay-${methods[0]}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setHighlightMethods(methods);
+    window.setTimeout(() => setHighlightMethods((m) => (m === methods ? [] : m)), 2600);
   };
 
   // Live claims shared by all guests, plus the ones this browser finalized.
@@ -674,8 +671,8 @@ export default function Gifts({
           </section>
         )}
 
-        {/* Shagun / Honeymoon fund: a live progress bar per country, with that
-            country's payment details right under it */}
+        {/* Shagun / Honeymoon fund: one live progress bar for the shared pool
+            (dollars + rupees), then the payment details */}
         {honeymoon.enabled && payMethods.length > 0 && (
           <section className="mb-12">
             <SectionHeading icon={fundIcon} kicker={fundKicker} title={fundHeading} />
@@ -684,33 +681,22 @@ export default function Gifts({
                 {honeymoon.blurb}
               </p>
             )}
-            <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto items-start">
-              {honeymoon.funds.map((fund) => (
-                <div key={fund.id} className="space-y-4">
-                  <FundBar
-                    fund={fund}
-                    totals={fundTotals[fund.id]}
-                    ready={pledgesReady}
-                    unavailable={pledgesUnavailable}
-                    onSendNow={() => showPaymentFor(fund.id)}
-                  />
-                  <div id={`fund-pay-${fund.id}`} className="space-y-4 scroll-mt-6">
-                    {payMethods
-                      .filter((m) => fund.methods.includes(m.type))
-                      .map((method) => (
-                        <PayCard key={method.type} method={method} highlight={highlightFund === fund.id} />
-                      ))}
-                  </div>
+            <div className="max-w-xl mx-auto mb-8">
+              <HoneymoonFundBar
+                pool={honeymoon.pool}
+                totals={totals}
+                ready={pledgesReady}
+                unavailable={pledgesUnavailable}
+                onSendNow={showPaymentFor}
+              />
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
+              {payMethods.map((method) => (
+                <div key={method.type} id={`pay-${method.type}`} className="grid scroll-mt-6">
+                  <PayCard method={method} highlight={highlightMethods.includes(method.type)} />
                 </div>
               ))}
             </div>
-            {looseMethods.length > 0 && (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto mt-8">
-                {looseMethods.map((method) => (
-                  <PayCard key={method.type} method={method} />
-                ))}
-              </div>
-            )}
           </section>
         )}
 

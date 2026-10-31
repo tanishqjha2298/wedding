@@ -219,7 +219,7 @@ export const gifts: {
     kicker: 'With Your Blessings',
     kickerFriends: 'Sponsor Our Honeymoon!',
     blurb:
-      'Help us get to our honeymoon! Pick dollars or rupees, enter an amount and tap Donate to fill up the bar, then send it using the details below.',
+      'Help us get to our honeymoon! Pick dollars or rupees, enter an amount and tap Gift to fill up the bar, then send it using the details below.',
     pool: {
       goalUsd: 2000,
       inrPerUsd: 95, // approx. rate, Oct 2026

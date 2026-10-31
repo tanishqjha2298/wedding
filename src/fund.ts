@@ -1,7 +1,7 @@
 /**
  * Honeymoon fund: one shared pool that guests give to in dollars or rupees.
  *
- * Each Donate tap adds a doc to fundPledges in the currency it was given in,
+ * Each Gift tap adds a doc to fundPledges in the currency it was given in,
  * and every guest's page listens to the collection and sums it, converting
  * rupees at the fixed rate in config, so the bar shows the same live total
  * for everyone. No names are stored (the collection is publicly readable).

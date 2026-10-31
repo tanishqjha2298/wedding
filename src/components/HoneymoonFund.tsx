@@ -188,7 +188,7 @@ export function HoneymoonFundBar({
         <span className="text-stone-muted">{money(goal)}</span>
       </div>
 
-      {/* Donate */}
+      {/* Amount + Gift */}
       <div className="mt-6 flex items-stretch gap-2">
         <label className="flex-1 flex items-center bg-cream-stone border border-stone-warm rounded-xl px-3 focus-within:border-clay-rose focus-within:ring-1 focus-within:ring-clay-rose transition-all">
           <span className="text-stone-muted font-mono text-sm mr-1.5">{symbol}</span>
@@ -215,7 +215,7 @@ export function HoneymoonFundBar({
           className="cursor-pointer shrink-0 inline-flex items-center gap-1.5 bg-clay-rose hover:bg-clay-dark text-white text-[11px] font-sans font-bold uppercase tracking-wider px-5 rounded-xl shadow-sm transition-all disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-clay-rose"
         >
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <HandCoins className="w-3.5 h-3.5" />}
-          Donate
+          Gift
         </button>
       </div>
 

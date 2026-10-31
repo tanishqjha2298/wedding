@@ -480,6 +480,13 @@ export default function Gifts({
 }) {
   const { registry, honeymoon } = gifts;
   const payMethods = honeymoon.methods.filter((m) => m.enabled);
+  const showRegistry = registry.enabled && registry.sections.length > 0;
+  const showFund = honeymoon.enabled && payMethods.length > 0;
+
+  // Scroll without touching the URL, so the gifts view isn't swapped out.
+  const jumpTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const jumpButtonClass =
+    'cursor-pointer inline-flex items-center justify-center gap-2 border border-clay-rose/40 bg-orange-50/50 text-clay-rose hover:bg-clay-rose hover:text-white hover:border-clay-rose text-[11px] font-sans font-bold uppercase tracking-wider px-5 py-3 rounded-full transition-all';
 
   // Live honeymoon-fund pledges, shared by every guest.
   const [pledges, setPledges] = useState<Pledge[]>([]);
@@ -596,11 +603,29 @@ export default function Gifts({
           <p className="text-sm font-sans font-light text-stone-dark/85 leading-relaxed max-w-md mx-auto">
             {gifts.intro}
           </p>
+
+          {/* Shortcuts to the two ways to give */}
+          {(showRegistry || showFund) && (
+            <div className="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+              {showRegistry && (
+                <button type="button" onClick={() => jumpTo('gift-registry')} className={jumpButtonClass}>
+                  <Gift className="w-4 h-4" />
+                  Gift Registry
+                </button>
+              )}
+              {showFund && (
+                <button type="button" onClick={() => jumpTo('honeymoon-fund')} className={jumpButtonClass}>
+                  <Plane className="w-4 h-4" />
+                  Contribute to the Honeymoon Fund
+                </button>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* Gift registry: one section per country */}
-        {registry.enabled && registry.sections.length > 0 && (
-          <section className="mb-16">
+        {showRegistry && (
+          <section id="gift-registry" className="mb-16">
             <SectionHeading icon={<Gift className="w-5 h-5 stroke-[1.5]" />} kicker={registry.kicker} title={registry.heading} />
 
             {/* How it works */}
@@ -673,8 +698,8 @@ export default function Gifts({
 
         {/* Shagun / Honeymoon fund: one live progress bar for the shared pool
             (dollars + rupees), then the payment details */}
-        {honeymoon.enabled && payMethods.length > 0 && (
-          <section className="mb-12">
+        {showFund && (
+          <section id="honeymoon-fund" className="mb-12">
             <SectionHeading icon={fundIcon} kicker={fundKicker} title={fundHeading} />
             {honeymoon.blurb && (
               <p className="text-center text-sm font-sans font-light text-stone-dark/85 leading-relaxed max-w-xl mx-auto mb-8">
